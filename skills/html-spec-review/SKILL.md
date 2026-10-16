@@ -1,6 +1,7 @@
 ---
 name: html-spec-review
-description: Read before reading, drafting, editing, or reviewing text in the WHATWG HTML standard: `whatwg/html`'s `source` file, a PR against it, or new spec prose, algorithms, IDL, or examples for it. Triggers on: "HTML spec", "HTML standard", "whatwg/html", reading/editing `source`, "split the source", reviewing a whatwg/html PR.
+description: >-
+  Read before reading, drafting, editing, or reviewing text in the WHATWG HTML standard: `whatwg/html`'s `source` file, a PR against it, or new spec prose, algorithms, IDL, or examples for it. Triggers on: "HTML spec", "HTML standard", "whatwg/html", reading/editing `source`, "split the source", reviewing a whatwg/html PR.
 ---
 
 # Agent Skill: HTML Specification Writing and Review Guide
