@@ -37,9 +37,12 @@ class WebIDLAnalyzer:
         self.known_dictionaries: Dict[str, bool] = {}  # name -> has_required_members
 
     def extract_idl_blocks(self, content: str) -> List[Tuple[int, str]]:
-        """Finds all <pre class="idl">...</pre> blocks with starting line numbers."""
+        """Finds all <pre class="idl">...</pre> and <pre><code class="idl">...</code></pre> blocks with starting line numbers."""
         blocks = []
-        pattern = re.compile(r'<pre\s+class=["\']idl["\']>(.*?)</pre>', re.DOTALL | re.IGNORECASE)
+        pattern = re.compile(
+            r'<pre(?:\s+class=["\']idl["\']>|\s*><code\s+class=["\']idl["\']>)(.*?)(?:</code>)?</pre>',
+            re.DOTALL | re.IGNORECASE
+        )
         for match in pattern.finditer(content):
             start_pos = match.start(1)
             line_no = content[:start_pos].count('\n') + 1
