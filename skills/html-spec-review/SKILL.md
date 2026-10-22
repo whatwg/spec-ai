@@ -168,12 +168,12 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
   - Ensure the fallback branch creates synthetic fallback structs or documents the intentional omission with matching WPT tests.
 
 ### 3.7. Reactivity & Mutation-Hook Parity Audit
-- **Failure Mode**: An algorithm begins reading a new DOM attribute, sibling/parent attribute, CSS `computed value` (e.g., `'object-fit'`), or layout box dimension (`content box`), but the corresponding reactivity hooks (`relevant mutations`, `attribute change steps`, `HTML element insertion/removing steps`, `react to changes in the environment`) are either not updated or use mismatched guard conditions.
+- **Failure Mode**: An algorithm starts reading a new DOM attribute, sibling/parent attribute, CSS `computed value`, or layout dimension, but the corresponding reactivity hooks (`relevant mutations`, `attribute change steps`, `HTML element insertion/removing steps`, `react to changes in the environment`) are missing or use different guards.
 - **Review Rule**:
-  1. **Completeness**: Verify that dynamically mutating any newly read attribute, sibling element, or CSS property triggers the appropriate update algorithm.
-  2. **Guard Condition Parity**: Verify that the mutation trigger uses the *exact same guard condition* as the algorithm that consumes the input. For example, if `parse a sizes attribute` only inspects `'object-fit'` when `img is being rendered`, then `relevant mutations` must only trigger on `'object-fit'` changes *while the element is `being rendered`* (otherwise mutating `object-fit` on a `display: none` image triggers a bogus update and sets `img.complete = false`).
-  3. **Side-Effect & Event Flag Parity**: Verify that new mutation triggers set auxiliary flags (such as the *maybe omit events* flag in `update the image data`) consistently with analogous existing triggers.
-  4. **Internal Slot Reset on Fallback or Removal**: When an algorithm iterates over candidate child/sibling elements (`<picture><source>`) and updates an internal association slot on the host element (`dimension attribute source`), ensure the slot is reset to its default at algorithm entry (when no candidate matches or when falling back to `<img>`) and in `HTML element removing steps` when disconnected.
+  1. **Completeness**: Dynamically mutating any newly read attribute, relative element, or CSS property must trigger the update algorithm.
+  2. **Guard condition parity**: The mutation trigger must use the *exact same guard condition* as the algorithm that reads the input (e.g., if a property is only read while `being rendered`, mutating it while `display: none` must not trigger an update).
+  3. **Event & flag parity**: New mutation triggers must set auxiliary flags (such as event-omission flags) consistently with existing triggers.
+  4. **Internal slot reset on fallback or removal**: When a candidate loop updates an internal association slot on the host element, reset the slot to its default at algorithm entry (when no candidate matches) and in `HTML element removing steps` when disconnected.
 
 ### 3.8. Ordering in Candidate Loops
 - In algorithms that iterate over candidate elements (e.g. `<picture><source>`, `<video><source>`):
@@ -183,9 +183,9 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
 ### 3.9. Author Script Re-Entrancy & Mid-Algorithm DOM Mutations
 - **Failure Mode**: Any algorithm that can invoke author script mid-execution (via custom element constructors/reactions, `<script>` execution, synchronous event/callback dispatch, or queued tasks/microtasks) cannot assume that DOM invariants validated at the start of the algorithm still hold afterward. Author script may detach the target, displace a `referenceChild`, reparent nodes, or `adoptNode()` the target into another `Document`.
 - **Review Rule**:
-  1. **Re-validate before side-effectful creation, not just at final insertion**: If a target or reference node is displaced by author script mid-algorithm, checking only at final DOM insertion is too late if earlier steps already created elements in a live `Document` (starting `<img>`/media fetches or queueing custom element upgrades), ran speculative mock-element fetches, or pushed elements onto an open stack. Re-validate *before* element creation.
+  1. **Re-validate before side-effectful creation, not just at final insertion**: If a target or reference node is displaced by author script mid-algorithm, checking only at final DOM insertion is too late if earlier steps already created elements in a live `Document` (starting resource fetches or queueing custom element upgrades), ran speculative mock-element fetches, or pushed elements onto an open stack. Re-validate *before* element creation.
   2. **Guard destructive intermediate steps on stale state**: Algorithms that remove and re-insert existing DOM nodes (such as the Adoption Agency Algorithm removing `lastNode`) must verify that the destination insertion location is still valid *before* detaching nodes that were already in the DOM.
-  3. **Avoid caching document-scoped state across script boundaries**: If author script can adopt a target node into another `Document` mid-operation, do not rely on document-scoped state cached at initialization (such as a `customElementRegistry` copied onto an internal root element); re-query the target's current `node document` / registry, and verify cross-document guards across all script types (both HTML `<script>` and SVG `<script>`).
+  3. **Avoid caching document-scoped state across script boundaries**: If author script can adopt a target node into another `Document` mid-operation, re-query document-scoped state (such as `node document` or `customElementRegistry`) dynamically rather than caching it at initialization, and check cross-document guards across both HTML `<script>` and SVG `<script>`.
 
 ---
 
@@ -216,9 +216,9 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
 ### 4.5. Shared Parser & Element Lifecycle Bleed Audit
 - **Failure Mode**: Modifying a shared parser or element algorithm (`create an element for a token`, `prepare the script element`, `the end`, `adoption agency algorithm`, `Noah's Ark clause`) for one feature and accidentally altering behavior in other parser contexts or element lifecycle hooks.
 - **Review Rule**:
-  1. **Audit all 4 parser contexts**: Verify the change against **(a) the normal document parser**, **(b) non-streaming fragment parsers (`innerHTML`)**, **(c) the speculative HTML parser**, and **(d) the XML parser (`xhtml.html`)**. For example, do not broaden a speculative-parser-only check (`<base>`/`<meta>`) to all parsers with a browsing context, and ensure any new script slot set by the HTML parser (e.g. `intended document`) is also set or handled by the XML parser.
-  2. **Audit `cloning steps` (`cloneNode`)**: When refactoring internal slots on elements (e.g., replacing `already started` with a new document slot for inert fragment scripts), check the element's `cloning steps` so `cloneNode()` does not lose the inertness guarantee.
-  3. **Audit downstream consumers of token vs. element state**: If attribute filtering or mutation is moved to `create an element for a token` (before attributes are appended to the element), audit downstream parser steps that previously inspected the element's attributes (such as the Noah's Ark clause, which must compare the token's attributes instead).
+  1. **Audit all 4 parser contexts**: Verify the change against **(a) the normal document parser**, **(b) fragment parsers (`innerHTML`)**, **(c) the speculative HTML parser**, and **(d) the XML parser (`xhtml.html`)** so guards or new internal slots aren't inadvertently broadened or omitted in one parser.
+  2. **Audit `cloning steps` (`cloneNode`)**: When refactoring internal slots on elements (such as script inertness slots), check the element's `cloning steps` so `cloneNode()` preserves the invariant.
+  3. **Audit downstream consumers of token vs. element state**: If attribute filtering or mutation happens before attributes are appended to the element, check downstream parser steps that previously inspected the element's attributes (such as the Noah's Ark clause).
 
 ---
 
@@ -522,9 +522,9 @@ Fragment parsing and DOM mutations vary significantly across node types. Ensure 
 - **Device Pixel Ratio (DPR) Sensitivity**:
   - Choose `srcset`/`sizes` values so the selected candidate doesn't depend on `window.devicePixelRatio`, e.g. candidates close in width and test sizes far apart.
 - **Vacuously Passing ("Can't Fail") Tests**:
-  - *Unguarded `TypeError` on new methods*: Calling an unimplemented method (`obj.newMethod()`) throws `TypeError` in every browser. Always guard `assert_throws_js(TypeError, ...)` / `promise_rejects_js(..., TypeError, ...)` with `assert_implements(obj.newMethod)` (or `typeof obj.newMethod === "function"`).
-  - *Preconditions blocked by unrelated spec rules*: Verify the test setup actually reaches the normative branch under test — e.g., `<link rel="stylesheet">` created via `createElement()` never `contributes a script-blocking style sheet` (must be parser-created); appending text to an unclosed `parser-inserted` `<script>` returns early before checking `already started` (test via `script.cloneNode(true)`); `blocking="render"` has no effect once `<body>` exists; and inside a removed `<iframe>`, `window.parent` is `null` (pass a callback from the parent realm instead of setting `parent.flag = true`).
-  - *Dead tokens after parser stop/abort*: If an error stops the tokenizer on the first token, a single test with multiple elements only tests the first token; use separate tests per first token.
+  - *Unguarded `TypeError` on new methods*: Calling an unimplemented method (`obj.newMethod()`) throws `TypeError` in every browser. Always guard `assert_throws_js(TypeError, ...)` / `promise_rejects_js(..., TypeError, ...)` with `assert_implements` or a `typeof` check.
+  - *Preconditions blocked by unrelated spec rules*: Verify the test setup actually reaches the branch under test rather than returning early (e.g., parser-only flags tested on `createElement()` nodes, uncloned `parser-inserted` scripts, or accessing `window.parent` inside a detached `<iframe>`).
+  - *Dead tokens after parser stop/abort*: If an error stops the tokenizer on the first token, a single test with multiple elements only tests the first token; use separate tests per token.
 - **Literal `</script>` Inside Inline `<script>` Blocks**:
   - Never write a literal `</script>` inside a JS comment or string literal in an HTML test's `<script>` block; the HTML tokenizer closes the `<script>` element early and fails the entire file with a `SyntaxError` (escape as `<\/script>`).
 - **Unbounded Wait Helpers & Post-Cleanup Callbacks**:
@@ -617,7 +617,7 @@ Before finalizing or approving any HTML specification PR, run through this compr
 - [ ] **Non-Masking Negative Tests**: In fallback/negative tests, would partially parsing the invalid input select a *different* outcome from the fallback?
 - [ ] **Presentational Hints vs. Inline Style**: Do presentational hint tests avoid inline styles that override the hints?
 - [ ] **DPR Independence**: Does `srcset`/`sizes` candidate selection hold at any `window.devicePixelRatio`?
-- [ ] **No Vacuously Passing Tests**: Do `TypeError` tests assert the method exists first (`assert_implements`)? Do setup steps avoid unrelated spec early-returns (`createElement("link")`, uncloned `parser-inserted` scripts, `window.parent` in detached iframes)?
+- [ ] **No Vacuously Passing Tests**: Do `TypeError` tests assert the method exists first (`assert_implements` / `typeof`)? Does test setup actually reach the branch under test without hitting unrelated early returns?
 - [ ] **No Literal `</script>` in Inline Scripts**: Are all `</script>` strings/comments inside `.html` test `<script>` blocks escaped as `<\/script>`?
 
 ### Algorithmic Correctness & State
