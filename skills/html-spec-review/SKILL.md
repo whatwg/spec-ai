@@ -175,11 +175,10 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
   3. **Side-Effect & Event Flag Parity**: Verify that new mutation triggers set auxiliary flags (such as the *maybe omit events* flag in `update the image data`) consistently with analogous existing triggers.
   4. **Internal Slot Reset on Fallback or Removal**: When an algorithm iterates over candidate child/sibling elements (`<picture><source>`) and updates an internal association slot on the host element (`dimension attribute source`), ensure the slot is reset to its default at algorithm entry (when no candidate matches or when falling back to `<img>`) and in `HTML element removing steps` when disconnected.
 
-### 3.8. Side-Effect & Layout-Dependency Ordering in Candidate Loops
-- **Failure Mode**: In algorithms that iterate over candidate elements (`<picture><source>`, `<video><source>`, etc.), running side-effecting or layout-reading steps in the wrong order relative to eligibility filters or presentational hint updates.
-- **Review Rule**:
-  1. **Filter before side-effects**: Evaluate all candidate eligibility filters (`srcset`, `media`, `type`) *before* invoking sub-algorithms that mutate persistent state (such as `parse a sizes attribute`, which mutates `last auto-sizes size`).
-  2. **Mutate presentational hints before reading layout**: Any step that updates presentational hints or layout-affecting state (such as updating `dimension attribute source` from `<source width height>`) MUST execute *before* any step that queries layout dimensions (`content box` in `sizes="auto"`).
+### 3.8. Ordering in Candidate Loops
+- In algorithms that iterate over candidate elements (e.g. `<picture><source>`, `<video><source>`):
+  1. **Filter before side effects**: Check every eligibility filter before calling sub-algorithms that mutate persistent state.
+  2. **Update layout inputs before reading layout**: Update anything that affects layout (e.g. presentational hints) before steps that read layout dimensions.
 
 ### 3.9. Author Script Re-Entrancy & Mid-Algorithm DOM Mutations
 - **Failure Mode**: Any algorithm that can invoke author script mid-execution (via custom element constructors/reactions, `<script>` execution, synchronous event/callback dispatch, or queued tasks/microtasks) cannot assume that DOM invariants validated at the start of the algorithm still hold afterward. Author script may detach the target, displace a `referenceChild`, reparent nodes, or `adoptNode()` the target into another `Document`.
@@ -267,17 +266,11 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
 ### 6.3. Layering & Clean Inversion
 - Core HTML tree-construction and fragment-parsing algorithms should remain agnostic of external subsystems where possible. Subsystems (such as CSP) should define integration hooks into HTML rather than HTML reaching directly into subsystem algorithms.
 
-### 6.4. CSS Syntax & HTML Microsyntax Boundary Checklist
-- **CSS Component Value Matching**:
-  - When matching tokens inside a list of CSS `component values` (e.g., from `parse a comma-separated list of component values`), specify exact CSS Syntax token types (`<span>&lt;ident-token></span>`, `<span>&lt;whitespace-token></span>`, `<span>ASCII case-insensitive</span>` match) rather than loose string-prefix phrasing.
-  - Account for component value boundaries without whitespace: CSS comments (`/**/`) are stripped during tokenization and functions (`calc(10px)calc(20px)`) are single component values, whereas `contain(10px)` is a function component value rather than an `<ident-token>`.
-- **Division-by-Zero & Degenerate Numeric Guards**:
-  - HTML's `rules for parsing dimension values` and `valid non-negative integer` allow `0` (and percentages for dimension values).
-  - Whenever dividing by a parsed dimension or descriptor (such as computing an aspect ratio `width / height` or density `w / concreteWidth`), explicitly check whether `0`, a `percentage`, or `failure` can reach the divisor, or guard against `zero` before dividing.
-- **Infra `ASCII whitespace` Cardinality**:
-  - In Infra, `<span>ASCII whitespace</span>` refers to a single code point. In microsyntax grammar definitions (such as `srcset` descriptors), always specify cardinality (`one or more <span>ASCII whitespace</span>` or `zero or more <span>ASCII whitespace</span>`) so multiple spaces or newlines between tokens remain valid for authors.
-- **Authoring Grammar vs. Parser Recovery Parity**:
-  - When adding fallback recovery in a parser algorithm (e.g., allowing a bare `<source-size-2d>` or `auto` before a fallback entry in `parse a sizes attribute`), ensure both the authoring BNF grammar and the parser's `parse error` conditions agree on which inputs are valid for authors.
+### 6.4. CSS Syntax & HTML Microsyntax Boundaries
+- **CSS component values**: Match exact CSS Syntax token types (`<ident-token>`, `<whitespace-token>`), not string prefixes, and say whether matching is ASCII case-insensitive. Adjacent component values needn't be separated by whitespace: comments are dropped during tokenization, and a function is one component value.
+- **Degenerate numbers**: Before dividing by a parsed value, check whether `0`, a percentage, or failure can reach the divisor.
+- **`ASCII whitespace` cardinality**: In Infra, `<span>ASCII whitespace</span>` is a single code point. Grammars should say `one or more` or `zero or more`.
+- **Grammar vs. parser parity**: When adding error recovery to a parser, make the authoring grammar and the parse error conditions agree on which inputs are valid.
 
 ---
 
@@ -522,12 +515,12 @@ Fragment parsing and DOM mutations vary significantly across node types. Ensure 
 - **Tentative vs. Non-Tentative Files**:
   - Novel APIs not yet fully integrated into a ratified standard belong in `*.tentative.html` files.
   - Tests for bug fixes or normative changes to **pre-existing standard APIs** (e.g., `innerHTML` on `<template>` or XML throwing behavior) MUST be added to standard, non-tentative WPT files.
-- **Masking / False-Positive Negative Tests**:
-  - In negative tests that assert fallback after an invalid entry (e.g., `sizes="<invalid-entry>, 1px"` expecting the `1px` candidate `ref1`), verify that every numeric value inside `<invalid-entry>` would select the *opposite* candidate (`ref2`) if a buggy parser partially accepted it (e.g., use `cover 1000px var(--h, 1000px), 1px` rather than `cover 10px var(--h, 1000px), 1px` when `10px` also selects `ref1`).
+- **Masking Negative Tests**:
+  - In a negative test that expects a fallback after invalid input, make sure no part of the invalid input would also select the expected outcome if a buggy parser partially accepted it.
 - **CSS Cascade vs. HTML Presentational Hints**:
-  - Never use inline `style="width: auto; height: auto"` in a test meant to verify HTML `width`/`height` presentational hints on `<img>` or `<source>`. Author inline styles have higher cascade priority than presentational hints and will override them (falling back to natural dimensions or `contain-intrinsic-size: 300px 150px` and producing false-positive passes). Scope the test's `<style>` selector (e.g., `img:not(.use-pres-hint)`) instead.
+  - Don't set inline `style` for properties that a test expects presentational hints to set; author styles override hints, so the test can pass without them.
 - **Device Pixel Ratio (DPR) Sensitivity**:
-  - In `srcset`/`sizes` tests, avoid widely spaced candidate widths like `50w` and `500w` when testing sizes like `10px` vs. `100px`, which flip selection under `window.devicePixelRatio >= 3` due to geometric-mean density selection. Use tightly spaced candidate widths (`50w` and `51w`) and widely separated test sizes (`10px` and `1000px`) so selection is invariant across DPR 1, 2, and 3+.
+  - Choose `srcset`/`sizes` values so the selected candidate doesn't depend on `window.devicePixelRatio`, e.g. candidates close in width and test sizes far apart.
 - **Vacuously Passing ("Can't Fail") Tests**:
   - *Unguarded `TypeError` on new methods*: Calling an unimplemented method (`obj.newMethod()`) throws `TypeError` in every browser. Always guard `assert_throws_js(TypeError, ...)` / `promise_rejects_js(..., TypeError, ...)` with `assert_implements(obj.newMethod)` (or `typeof obj.newMethod === "function"`).
   - *Preconditions blocked by unrelated spec rules*: Verify the test setup actually reaches the normative branch under test — e.g., `<link rel="stylesheet">` created via `createElement()` never `contributes a script-blocking style sheet` (must be parser-created); appending text to an unclosed `parser-inserted` `<script>` returns early before checking `already started` (test via `script.cloneNode(true)`); `blocking="render"` has no effect once `<body>` exists; and inside a removed `<iframe>`, `window.parent` is `null` (pass a callback from the parent realm instead of setting `parent.flag = true`).
@@ -621,9 +614,9 @@ Before finalizing or approving any HTML specification PR, run through this compr
 - [ ] **Combinatorial Matrix**: Are all combinations of boolean flags (e.g. `safe` × `runScripts` false/true/default) tested?
 - [ ] **Spec vs. Engine Truth**: Do tests assert the normative spec behavior rather than current browser engine quirks?
 - [ ] **Tentative Naming Correctness**: Are fixes to existing standard methods placed in non-tentative files, while novel APIs use `.tentative.html`?
-- [ ] **Non-Masking Negative Tests**: In fallback/negative tests, do numeric values inside the invalid input select a *different* outcome from the fallback if partially parsed?
-- [ ] **Presentational Hints vs. Inline Style**: Do presentational hint tests avoid inline `style="width: auto; height: auto"` overrides that mask HTML `width`/`height` attributes?
-- [ ] **DPR Independence**: Are `srcset`/`sizes` candidate widths and test sizes chosen so selection holds across `window.devicePixelRatio` 1, 2, and 3+?
+- [ ] **Non-Masking Negative Tests**: In fallback/negative tests, would partially parsing the invalid input select a *different* outcome from the fallback?
+- [ ] **Presentational Hints vs. Inline Style**: Do presentational hint tests avoid inline styles that override the hints?
+- [ ] **DPR Independence**: Does `srcset`/`sizes` candidate selection hold at any `window.devicePixelRatio`?
 - [ ] **No Vacuously Passing Tests**: Do `TypeError` tests assert the method exists first (`assert_implements`)? Do setup steps avoid unrelated spec early-returns (`createElement("link")`, uncloned `parser-inserted` scripts, `window.parent` in detached iframes)?
 - [ ] **No Literal `</script>` in Inline Scripts**: Are all `</script>` strings/comments inside `.html` test `<script>` blocks escaped as `<\/script>`?
 
@@ -632,7 +625,7 @@ Before finalizing or approving any HTML specification PR, run through this compr
 - [ ] **Pre-Initialization State Access**: Are capability checks, permissions policy, or environment settings queried on an object *before* its subordinate objects (`window.document`, parent) are linked?
 - [ ] **Fallback & Null Path Auditing**: When guarding an algorithm step with `If <var>controller</var> is non-null:`, what happens on the fallback path (`srcdoc`, `javascript:`, error pages)? Are entries or state dropped?
 - [ ] **Reactivity & Mutation-Hook Parity**: For every newly read DOM attribute, sibling element, CSS `computed value`, or layout box dimension, do `relevant mutations` / `attribute change steps` trigger with the *exact same guard conditions* (e.g., `being rendered`) and event-suppression flags?
-- [ ] **Candidate Loop Ordering**: Are eligibility filters (`srcset`, `media`, `type`) checked *before* side-effecting sub-algorithms, and are presentational hint updates (`dimension attribute source`) applied *before* layout reads (`content box`)?
+- [ ] **Candidate Loop Ordering**: Are eligibility filters checked *before* side-effecting sub-algorithms, and layout inputs updated *before* layout reads?
 - [ ] **Author Script Re-Entrancy & Mid-Algorithm Mutations**: If author script can run mid-algorithm (detaching targets, displacing `referenceChild`, or adopting into another `Document`), are displaced nodes intercepted *before* element creation, destructive intermediate steps guarded, and document-scoped state (`customElementRegistry`, HTML/SVG script guards) re-evaluated dynamically?
 - [ ] **CSS & Microsyntax Boundaries**: Are CSS `component value` matches specified with exact token types (`<ident-token>`, `<whitespace-token>`), division by zero / `0` dimensions guarded, and `<span>ASCII whitespace</span>` cardinalities (`one or more`) explicit?
 - [ ] **Shallow Clones**: Are any cloned dictionaries/maps holding nested maps/lists? If so, are mutations safely isolated, or do they leak into the source object?
