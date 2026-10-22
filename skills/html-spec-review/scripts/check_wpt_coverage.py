@@ -11,6 +11,10 @@ Audits spec PR diffs or spec files against linked Web Platform Tests (WPT):
    - Scans modified algorithm steps for 'throw a "..." DOMException' and checks if WPT asserts those exception names.
 3. Tentative Naming Correctness:
    - Flags cases where tests for pre-existing standard APIs (e.g. Element.innerHTML) are placed exclusively in .tentative.html files.
+4. Early </script> in Inline Scripts (WPT-EARLY-SCRIPT-CLOSE):
+   - Flags literal '</script>' inside JS comments or string literals in .html/.htm WPT files, which prematurely closes the HTML <script> element and causes a SyntaxError.
+5. Unguarded TypeError on New Methods (WPT-UNGUARDED-TYPEERROR):
+   - Flags assert_throws_js(TypeError, ...) or promise_rejects_js(..., TypeError, ...) calling newly added IDL methods without an assert_implements / assert_own_property / typeof check in the file.
 """
 
 import re
@@ -102,6 +106,13 @@ class WPTCoverageAnalyzer:
                 if re.search(rf'assert_throws_dom\s*\(\s*["\']{re.escape(exc)}["\']', test_content):
                     tested_exceptions.add(exc)
 
+            # Check for literal </script> inside JS comments or string literals in HTML files
+            if wpt_path.suffix in {'.html', '.htm'}:
+                self._check_early_script_close(wpt_path, test_content)
+
+            # Check for unguarded TypeError assertions on target sinks
+            self._check_unguarded_typeerror(wpt_path, test_content, target_sinks)
+
         # Flag any sink that has 0 matching tests
         for sink, tests in sink_test_map.items():
             # Focus on high-value DOM/HTML insertion sinks
@@ -126,6 +137,66 @@ class WPTCoverageAnalyzer:
                 ))
 
         return self.issues
+
+    def _check_early_script_close(self, wpt_path: Path, test_content: str) -> None:
+        """Flags literal </script> inside JS comments or string literals in HTML WPT files."""
+        lines = test_content.splitlines()
+        in_script = False
+        for line_no, line in enumerate(lines, start=1):
+            # Track <script> blocks (handling multiple tags on a line if any)
+            if not in_script:
+                if re.search(r'<script\b[^>]*>', line, re.IGNORECASE) and not re.search(r'</script\s*>', line, re.IGNORECASE):
+                    in_script = True
+                continue
+
+            close_match = re.search(r'</script\b', line, re.IGNORECASE)
+            if close_match:
+                prefix = line[:close_match.start()]
+                suffix = line[close_match.end():]
+                # Case 1: // comment precedes </script> on the same line
+                in_line_comment = bool(re.search(r'(^|[^:])//', prefix))
+                # Case 2: </script> appears inside a string literal on that line (quotes/backticks around it)
+                in_string_literal = bool(
+                    re.search(r'["\'`][^"\'`]*$', prefix) and re.search(r'^[^"\'`]*["\'`]', suffix)
+                )
+                if in_line_comment or in_string_literal:
+                    self.issues.append(CoverageIssue(
+                        "WPT-EARLY-SCRIPT-CLOSE",
+                        f"Literal '</script>' inside JS comment or string literal at {wpt_path.name}:{line_no} prematurely closes the HTML <script> element.",
+                        f"Escape as '<\\/script>' on line {line_no}: {line.strip()}"
+                    ))
+                else:
+                    in_script = False
+
+    def _check_unguarded_typeerror(self, wpt_path: Path, test_content: str, target_sinks: Set[str]) -> None:
+        """Flags TypeError assertions on target sinks when the file lacks an existence guard."""
+        if not target_sinks:
+            return
+        legacy_standard_sinks = {
+            "innerHTML", "outerHTML", "insertAdjacentHTML",
+            "createContextualFragment", "parseFromString"
+        }
+        has_existence_guard = bool(re.search(
+            r'\b(?:assert_implements|assert_implements_optional|assert_own_property|assert_idl_attribute|typeof\b)',
+            test_content
+        ))
+        if has_existence_guard:
+            return
+
+        typeerror_blocks = re.findall(
+            r'(?:assert_throws_js|promise_rejects_js)\s*\([^;]{0,300}\bTypeError\b[^;]{0,300}\)',
+            test_content,
+            re.DOTALL
+        )
+        for block in typeerror_blocks:
+            for sink in target_sinks - legacy_standard_sinks:
+                if re.search(rf'\.\s*{re.escape(sink)}\s*\(', block):
+                    self.issues.append(CoverageIssue(
+                        "WPT-UNGUARDED-TYPEERROR",
+                        f"Test file '{wpt_path.name}' asserts TypeError when calling '.{sink}(...)' without checking that '{sink}' is implemented first.",
+                        f"Add assert_implements(..., '{sink}') so calling an unimplemented method does not vacuously pass with TypeError."
+                    ))
+                    return
 
 
 def main():
