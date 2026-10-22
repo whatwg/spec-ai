@@ -141,18 +141,32 @@ class WPTCoverageAnalyzer:
 
     def _check_early_script_close(self, wpt_path: Path, test_content: str) -> None:
         """Flags literal </script> inside JS comments or string literals in HTML WPT files."""
-        lines = test_content.splitlines()
+        script_start = re.compile(r'<script\b[^>]*>', re.IGNORECASE)
+        # The tokenizer only ends a script at '</script' followed by whitespace, '/' or '>'
+        script_end = re.compile(r'</script(?=[\s/>]|$)', re.IGNORECASE)
         in_script = False
-        for line_no, line in enumerate(lines, start=1):
-            # Track <script> blocks (handling multiple tags on a line if any)
-            if not in_script:
-                if re.search(r'<script\b[^>]*>', line, re.IGNORECASE) and not re.search(r'</script\s*>', line, re.IGNORECASE):
+        for line_no, line in enumerate(test_content.splitlines(), start=1):
+            # Scan the line from left to right, so start and end tags on the same line are handled
+            pos = 0
+            started_on_line = False
+            while True:
+                if not in_script:
+                    start_match = script_start.search(line, pos)
+                    if not start_match:
+                        break
+                    if line[:start_match.start()].count('"') % 2:
+                        # Inside an attribute value, e.g. <iframe srcdoc="<script>...</script>">
+                        pos = start_match.end()
+                        continue
                     in_script = True
-                continue
+                    started_on_line = True
+                    pos = start_match.end()
+                    continue
 
-            close_match = re.search(r'</script\b', line, re.IGNORECASE)
-            if close_match:
-                prefix = line[:close_match.start()]
+                close_match = script_end.search(line, pos)
+                if not close_match:
+                    break
+                prefix = line[pos:close_match.start()]
                 suffix = line[close_match.end():]
                 # Case 1: // comment precedes </script> on the same line
                 in_line_comment = bool(re.search(r'(^|[^:])//', prefix))
@@ -160,7 +174,8 @@ class WPTCoverageAnalyzer:
                 in_string_literal = bool(
                     re.search(r'["\'`][^"\'`]*$', prefix) and re.search(r'^[^"\'`]*["\'`]', suffix)
                 )
-                if in_line_comment or in_string_literal:
+                # A one-line <script>// ...</script> is intended to end there
+                if (in_line_comment or in_string_literal) and not started_on_line:
                     self.issues.append(CoverageIssue(
                         "WPT-EARLY-SCRIPT-CLOSE",
                         f"Literal '</script>' inside JS comment or string literal at {wpt_path.name}:{line_no} prematurely closes the HTML <script> element.",
@@ -168,6 +183,7 @@ class WPTCoverageAnalyzer:
                     ))
                 else:
                     in_script = False
+                pos = close_match.end()
 
     def extract_new_sinks(self, spec_text: str) -> Set[str]:
         """For a diff, returns the sinks that appear only in added lines (none for a full spec file)."""
