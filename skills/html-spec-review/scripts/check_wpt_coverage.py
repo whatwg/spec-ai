@@ -14,7 +14,7 @@ Audits spec PR diffs or spec files against linked Web Platform Tests (WPT):
 4. Early </script> in Inline Scripts (WPT-EARLY-SCRIPT-CLOSE):
    - Flags literal '</script>' inside JS comments or string literals in .html/.htm WPT files, which prematurely closes the HTML <script> element and causes a SyntaxError.
 5. Unguarded TypeError on New Methods (WPT-UNGUARDED-TYPEERROR):
-   - Flags assert_throws_js(TypeError, ...) or promise_rejects_js(..., TypeError, ...) calling newly added IDL methods without an assert_implements / assert_own_property / typeof check in the file.
+   - Flags assert_throws_js(TypeError, ...) or promise_rejects_js(..., TypeError, ...) calling a method added in the spec diff, directly or as obj[name](...), when the file has no assert_implements / assert_own_property / typeof / 'in' check for that method. Only runs when --spec-file is a diff.
 """
 
 import re
@@ -74,6 +74,7 @@ class WPTCoverageAnalyzer:
 
     def audit_coverage(self, spec_text: str, wpt_files: List[Path]) -> List[CoverageIssue]:
         target_sinks = self.extract_sinks_from_spec_diff_or_file(spec_text)
+        new_sinks = self.extract_new_sinks(spec_text)
         thrown_exceptions = self.extract_thrown_exceptions(spec_text)
 
         # Map each sink to the WPT files mentioning it
@@ -110,8 +111,8 @@ class WPTCoverageAnalyzer:
             if wpt_path.suffix in {'.html', '.htm'}:
                 self._check_early_script_close(wpt_path, test_content)
 
-            # Check for unguarded TypeError assertions on target sinks
-            self._check_unguarded_typeerror(wpt_path, test_content, target_sinks)
+            # Check for unguarded TypeError assertions on sinks added in a spec diff
+            self._check_unguarded_typeerror(wpt_path, test_content, new_sinks)
 
         # Flag any sink that has 0 matching tests
         for sink, tests in sink_test_map.items():
@@ -168,35 +169,59 @@ class WPTCoverageAnalyzer:
                 else:
                     in_script = False
 
-    def _check_unguarded_typeerror(self, wpt_path: Path, test_content: str, target_sinks: Set[str]) -> None:
-        """Flags TypeError assertions on target sinks when the file lacks an existence guard."""
-        if not target_sinks:
-            return
+    def extract_new_sinks(self, spec_text: str) -> Set[str]:
+        """For a diff, returns the sinks that appear only in added lines (none for a full spec file)."""
+        lines = spec_text.splitlines()
+        if not any(line.startswith('@@') for line in lines):
+            return set()
+        added = '\n'.join(line[1:] for line in lines if line.startswith('+') and not line.startswith('+++'))
+        other = '\n'.join(
+            line[1:] for line in lines
+            if line.startswith(' ') or (line.startswith('-') and not line.startswith('---'))
+        )
+        return self.extract_sinks_from_spec_diff_or_file(added) - self.extract_sinks_from_spec_diff_or_file(other)
+
+    def _check_unguarded_typeerror(self, wpt_path: Path, test_content: str, new_sinks: Set[str]) -> None:
+        """Flags TypeError assertions on new sinks when the file has no existence guard for them."""
         legacy_standard_sinks = {
             "innerHTML", "outerHTML", "insertAdjacentHTML",
             "createContextualFragment", "parseFromString"
         }
-        has_existence_guard = bool(re.search(
-            r'\b(?:assert_implements|assert_implements_optional|assert_own_property|assert_idl_attribute|typeof\b)',
+        typeerror_blocks = re.findall(
+            r'(?:assert_throws_js|promise_rejects_js)\s*\([^;]{0,300}TypeError\b[^;]{0,300}\)',
             test_content
-        ))
-        if has_existence_guard:
+        )
+        if not typeerror_blocks:
             return
 
-        typeerror_blocks = re.findall(
-            r'(?:assert_throws_js|promise_rejects_js)\s*\([^;]{0,300}\bTypeError\b[^;]{0,300}\)',
-            test_content,
-            re.DOTALL
-        )
-        for block in typeerror_blocks:
-            for sink in target_sinks - legacy_standard_sinks:
-                if re.search(rf'\.\s*{re.escape(sink)}\s*\(', block):
-                    self.issues.append(CoverageIssue(
-                        "WPT-UNGUARDED-TYPEERROR",
-                        f"Test file '{wpt_path.name}' asserts TypeError when calling '.{sink}(...)' without checking that '{sink}' is implemented first.",
-                        f"Add assert_implements(..., '{sink}') so calling an unimplemented method does not vacuously pass with TypeError."
-                    ))
-                    return
+        computed_call = r'\[\s*\w+\s*\]\s*\('
+        unguarded = []
+        for sink in sorted(new_sinks - legacy_standard_sinks):
+            s = re.escape(sink)
+            # Called as obj.sink(...), or as obj[name](...) in a file that lists the sink's name as a string
+            direct = any(re.search(rf'\.\s*{s}\s*\(', block) for block in typeerror_blocks)
+            computed = bool(re.search(rf'["\']{s}["\']', test_content)) and any(
+                re.search(computed_call, block) for block in typeerror_blocks
+            )
+            if not (direct or computed):
+                continue
+            target = rf'(?:\.{s}\b|\[\s*\w+\s*\])' if computed else rf'\.{s}\b'
+            guarded = re.search(
+                rf'(?:assert_implements(?:_optional)?|assert_own_property|assert_idl_attribute)\s*\([^;]*?(?:\b{s}\b|{target})'
+                rf'|typeof\s+[\w.$]*{target}'
+                rf'|["\']{s}["\']\s+in\s',
+                test_content
+            )
+            if not guarded:
+                unguarded.append(sink)
+
+        if unguarded:
+            names = ", ".join(unguarded)
+            self.issues.append(CoverageIssue(
+                "WPT-UNGUARDED-TYPEERROR",
+                f"Test file '{wpt_path.name}' asserts TypeError when calling {names} without checking that the method is implemented first.",
+                "Assert that the method exists first (e.g. assert_implements or a typeof check), so calling an unimplemented method does not vacuously pass with TypeError."
+            ))
 
 
 def main():

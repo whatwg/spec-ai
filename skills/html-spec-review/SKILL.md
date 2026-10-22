@@ -581,7 +581,7 @@ Audits spec changes against accompanying Web Platform Tests:
 - **WPT-MISSING-EXCEPTION-TEST**: Verifies that every `throw a "..." DOMException` in the spec algorithm has a corresponding `assert_throws_dom("...")` test.
 - **WPT-TENTATIVE-ON-STANDARD-API**: Flags tests for pre-existing standard APIs erroneously placed in `.tentative.html` files.
 - **WPT-EARLY-SCRIPT-CLOSE**: Flags literal `</script>` inside JS comments or string literals in inline `<script>` blocks of `.html` WPT files (which prematurely closes the `<script>` tag and breaks the entire test file with a `SyntaxError`).
-- **WPT-UNGUARDED-TYPEERROR**: Flags `assert_throws_js(TypeError, ...)` / `promise_rejects_js(..., TypeError, ...)` calls on newly introduced IDL methods in files that lack an `assert_implements` / `assert_own_property` / `typeof` existence guard.
+- **WPT-UNGUARDED-TYPEERROR**: Flags `assert_throws_js(TypeError, ...)` / `promise_rejects_js(..., TypeError, ...)` calls on methods added in the spec diff (as `obj.method(...)` or `obj[name](...)`) in files with no `assert_implements` / `assert_own_property` / `typeof` / `in` check for that method. Only runs when `--spec-file` is a diff.
 
 ```bash
 python3 scripts/check_wpt_coverage.py --spec-file path/to/spec.html --wpt-dir path/to/wpt/
