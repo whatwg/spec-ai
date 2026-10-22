@@ -503,6 +503,8 @@ Fragment parsing and DOM mutations vary significantly across node types. Ensure 
   - Tests for bug fixes or normative changes to **pre-existing standard APIs** (e.g., `innerHTML` on `<template>` or XML throwing behavior) MUST be added to standard, non-tentative WPT files.
 - **Masking Negative Tests**:
   - In a negative test that expects a fallback after invalid input, make sure no part of the invalid input would also select the expected outcome if a buggy parser partially accepted it.
+- **Tests That Can't Fail**: Run the tests in a browser that doesn't implement the change. Subtests that pass there may not reach the branch under test (e.g. calling a missing method also throws `TypeError`, or an unrelated spec rule returns early).
+- **Tests That Stall**: Waits and cleanups that depend on the behavior under test should time out, so one failure doesn't stall the rest of the file with a harness timeout.
 
 ---
 
@@ -589,6 +591,7 @@ Before finalizing or approving any HTML specification PR, run through this compr
 - [ ] **Spec vs. Engine Truth**: Do tests assert the normative spec behavior rather than current browser engine quirks?
 - [ ] **Tentative Naming Correctness**: Are fixes to existing standard methods placed in non-tentative files, while novel APIs use `.tentative.html`?
 - [ ] **Non-Masking Negative Tests**: In fallback/negative tests, would partially parsing the invalid input select a *different* outcome from the fallback?
+- [ ] **Can't Fail or Stall**: Do any subtests pass without the change, and do waits on the behavior under test time out?
 
 ### Algorithmic Correctness & State
 - [ ] **Scope Leaks & Unbound Variables**: Are any variables declared with `Let` inside conditional sub-lists (`<ol>`) referenced outside that branch? (Initialize with `Let <var>x</var> be null` in outer scope).
