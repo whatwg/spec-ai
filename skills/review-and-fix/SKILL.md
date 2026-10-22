@@ -38,6 +38,8 @@ reporting back. For what to check in HTML spec text, see `html-spec-review`.
 
 - Re-read the cumulative diff, then re-lint, rebuild, and rerun the changed tests the way you ran
   them during review.
+- Then stop and let the user review locally: list the commits and show the draft comment. Ask
+  before pushing or posting anything, unless the prompt already asked you to.
 - Right before pushing, confirm each PR branch is still at the commit you built on, then push as a
   fast-forward. Never force-push.
 - Post one comment covering findings and fixes, citing the fix commit for each finding or saying
