@@ -22,8 +22,9 @@ Checks algorithm blocks (<div algorithm>) in HTML spec sources or diffs:
    - Detects variables declared with 'Let' that are never read/referenced in the algorithm and lack '<var ignore>'.
 8. Infra List Iteration Syntax:
    - Flags 'For each <var>x</var> in ...' (Infra requires 'of', not 'in').
-9. Assertion Formatting:
+9. Assertion & Loop Control Formatting:
    - Flags bare 'Assert:' lacking '<span>Assert</span>:' markup.
+   - Flags bare 'continue.' or 'break.' in algorithm steps lacking '<span>continue</span>' / '<span>break</span>' markup.
 10. Redundant data-x:
     - Flags '<span data-x="Foo">Foo</span>' where data-x equals inner text.
 11. Nested List Paragraph Closure:
@@ -175,6 +176,16 @@ class AlgorithmAnalyzer:
                 self.issues.append(AlgorithmIssue(
                     filename, line_no, "ALGO-ASSERT-SPAN",
                     "Algorithm assertions must be marked up as '<span>Assert</span>:' (found bare 'Assert:').",
+                    line
+                ))
+
+            # --- Check: Loop Control Formatting ('<span>continue</span>' / '<span>break</span>') ---
+            loop_ctrl_match = re.search(r'(?:<p>|<li>|\bOtherwise,\s+|\bthen\s+)(?<!<span>)\b(continue|break)\.', line)
+            if loop_ctrl_match:
+                kw = loop_ctrl_match.group(1)
+                self.issues.append(AlgorithmIssue(
+                    filename, line_no, "ALGO-LOOP-CONTROL-SPAN",
+                    f"Infra loop control keyword '{kw}' must be marked up as '<span>{kw}</span>'.",
                     line
                 ))
 

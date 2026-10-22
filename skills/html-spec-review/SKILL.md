@@ -77,6 +77,7 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
 ### 2.4. Phrasing Conventions
 - Use standard Infra conjugation: `the result of <span data-x="...">getting the popcorn</span> given <var>args</var>` (not "the result of calling get the popcorn with...").
 - Assertions: `<span>Assert</span>: <var>x</var> is non-null.` (Always wrap in `<span>Assert</span>:`, never bare `Assert:`).
+- Loop control: Always wrap `continue` and `break` in `<span>` (`<span>continue</span>`, `<span>break</span>`), never bare `continue` or `break`.
 - Context: `<span>this</span>` (never bare "this").
 
 ### 2.5. Scope Leaks & Branch-Bound Variables (`ALGO-UNBOUND-VAR-OUTER-SCOPE`)
@@ -166,6 +167,20 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
     5. In-flight aborted traversals
   - Ensure the fallback branch creates synthetic fallback structs or documents the intentional omission with matching WPT tests.
 
+### 3.7. Reactivity & Mutation-Hook Parity Audit
+- **Failure Mode**: An algorithm begins reading a new DOM attribute, sibling/parent attribute, CSS `computed value` (e.g., `'object-fit'`), or layout box dimension (`content box`), but the corresponding reactivity hooks (`relevant mutations`, `attribute change steps`, `HTML element insertion/removing steps`, `react to changes in the environment`) are either not updated or use mismatched guard conditions.
+- **Review Rule**:
+  1. **Completeness**: Verify that dynamically mutating any newly read attribute, sibling element, or CSS property triggers the appropriate update algorithm.
+  2. **Guard Condition Parity**: Verify that the mutation trigger uses the *exact same guard condition* as the algorithm that consumes the input. For example, if `parse a sizes attribute` only inspects `'object-fit'` when `img is being rendered`, then `relevant mutations` must only trigger on `'object-fit'` changes *while the element is `being rendered`* (otherwise mutating `object-fit` on a `display: none` image triggers a bogus update and sets `img.complete = false`).
+  3. **Side-Effect & Event Flag Parity**: Verify that new mutation triggers set auxiliary flags (such as the *maybe omit events* flag in `update the image data`) consistently with analogous existing triggers.
+  4. **Internal Slot Reset on Fallback or Removal**: When an algorithm iterates over candidate child/sibling elements (`<picture><source>`) and updates an internal association slot on the host element (`dimension attribute source`), ensure the slot is reset to its default at algorithm entry (when no candidate matches or when falling back to `<img>`) and in `HTML element removing steps` when disconnected.
+
+### 3.8. Side-Effect & Layout-Dependency Ordering in Candidate Loops
+- **Failure Mode**: In algorithms that iterate over candidate elements (`<picture><source>`, `<video><source>`, etc.), running side-effecting or layout-reading steps in the wrong order relative to eligibility filters or presentational hint updates.
+- **Review Rule**:
+  1. **Filter before side-effects**: Evaluate all candidate eligibility filters (`srcset`, `media`, `type`) *before* invoking sub-algorithms that mutate persistent state (such as `parse a sizes attribute`, which mutates `last auto-sizes size`).
+  2. **Mutate presentational hints before reading layout**: Any step that updates presentational hints or layout-affecting state (such as updating `dimension attribute source` from `<source width height>`) MUST execute *before* any step that queries layout dimensions (`content box` in `sizes="auto"`).
+
 ---
 
 ## 4. HTML Parser, Tree Construction & Edge Cases
@@ -237,6 +252,18 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
 
 ### 6.3. Layering & Clean Inversion
 - Core HTML tree-construction and fragment-parsing algorithms should remain agnostic of external subsystems where possible. Subsystems (such as CSP) should define integration hooks into HTML rather than HTML reaching directly into subsystem algorithms.
+
+### 6.4. CSS Syntax & HTML Microsyntax Boundary Checklist
+- **CSS Component Value Matching**:
+  - When matching tokens inside a list of CSS `component values` (e.g., from `parse a comma-separated list of component values`), specify exact CSS Syntax token types (`<span>&lt;ident-token></span>`, `<span>&lt;whitespace-token></span>`, `<span>ASCII case-insensitive</span>` match) rather than loose string-prefix phrasing.
+  - Account for component value boundaries without whitespace: CSS comments (`/**/`) are stripped during tokenization and functions (`calc(10px)calc(20px)`) are single component values, whereas `contain(10px)` is a function component value rather than an `<ident-token>`.
+- **Division-by-Zero & Degenerate Numeric Guards**:
+  - HTML's `rules for parsing dimension values` and `valid non-negative integer` allow `0` (and percentages for dimension values).
+  - Whenever dividing by a parsed dimension or descriptor (such as computing an aspect ratio `width / height` or density `w / concreteWidth`), explicitly check whether `0`, a `percentage`, or `failure` can reach the divisor, or guard against `zero` before dividing.
+- **Infra `ASCII whitespace` Cardinality**:
+  - In Infra, `<span>ASCII whitespace</span>` refers to a single code point. In microsyntax grammar definitions (such as `srcset` descriptors), always specify cardinality (`one or more <span>ASCII whitespace</span>` or `zero or more <span>ASCII whitespace</span>`) so multiple spaces or newlines between tokens remain valid for authors.
+- **Authoring Grammar vs. Parser Recovery Parity**:
+  - When adding fallback recovery in a parser algorithm (e.g., allowing a bare `<source-size-2d>` or `auto` before a fallback entry in `parse a sizes attribute`), ensure both the authoring BNF grammar and the parser's `parse error` conditions agree on which inputs are valid for authors.
 
 ---
 
@@ -474,6 +501,12 @@ Fragment parsing and DOM mutations vary significantly across node types. Ensure 
 - **Tentative vs. Non-Tentative Files**:
   - Novel APIs not yet fully integrated into a ratified standard belong in `*.tentative.html` files.
   - Tests for bug fixes or normative changes to **pre-existing standard APIs** (e.g., `innerHTML` on `<template>` or XML throwing behavior) MUST be added to standard, non-tentative WPT files.
+- **Masking / False-Positive Negative Tests**:
+  - In negative tests that assert fallback after an invalid entry (e.g., `sizes="<invalid-entry>, 1px"` expecting the `1px` candidate `ref1`), verify that every numeric value inside `<invalid-entry>` would select the *opposite* candidate (`ref2`) if a buggy parser partially accepted it (e.g., use `cover 1000px var(--h, 1000px), 1px` rather than `cover 10px var(--h, 1000px), 1px` when `10px` also selects `ref1`).
+- **CSS Cascade vs. HTML Presentational Hints**:
+  - Never use inline `style="width: auto; height: auto"` in a test meant to verify HTML `width`/`height` presentational hints on `<img>` or `<source>`. Author inline styles have higher cascade priority than presentational hints and will override them (falling back to natural dimensions or `contain-intrinsic-size: 300px 150px` and producing false-positive passes). Scope the test's `<style>` selector (e.g., `img:not(.use-pres-hint)`) instead.
+- **Device Pixel Ratio (DPR) Sensitivity**:
+  - In `srcset`/`sizes` tests, avoid widely spaced candidate widths like `50w` and `500w` when testing sizes like `10px` vs. `100px`, which flip selection under `window.devicePixelRatio >= 3` due to geometric-mean density selection. Use tightly spaced candidate widths (`50w` and `51w`) and widely separated test sizes (`10px` and `1000px`) so selection is invariant across DPR 1, 2, and 3+.
 
 ---
 
@@ -500,6 +533,7 @@ Validates algorithm steps inside `<div algorithm>` blocks and spec markup:
 - **ALGO-UNUSED-VAR**: Flags variables declared with `Let` that are never read/referenced again in the algorithm and omit `<var ignore>`.
 - **ALGO-LIST-OF**: Flags `For each <var>x</var> in ...` (Infra list iteration requires `of`, not `in`).
 - **ALGO-ASSERT-SPAN**: Flags bare `Assert:` lacking `<span>Assert</span>:` markup.
+- **ALGO-LOOP-CONTROL-SPAN**: Flags bare `continue` or `break` in algorithm steps (e.g., `Otherwise, continue.`) lacking `<span>continue</span>` / `<span>break</span>` markup.
 - **ALGO-REDUNDANT-DATA-X**: Flags redundant `data-x="term"` on `<span data-x="term">term</span>` where the cross-reference matches the definition name.
 - **ALGO-NESTED-LIST-P**: Flags algorithm list items (`<li><p>...<ol>`) missing `</p>` before a nested `<ol>` or `<ul>`.
 - **ALGO-STEP-PUNCTUATION**: Flags leaf algorithm steps missing terminal punctuation (`.` or `:`).
@@ -556,11 +590,17 @@ Before finalizing or approving any HTML specification PR, run through this compr
 - [ ] **Combinatorial Matrix**: Are all combinations of boolean flags (e.g. `safe` × `runScripts` false/true/default) tested?
 - [ ] **Spec vs. Engine Truth**: Do tests assert the normative spec behavior rather than current browser engine quirks?
 - [ ] **Tentative Naming Correctness**: Are fixes to existing standard methods placed in non-tentative files, while novel APIs use `.tentative.html`?
+- [ ] **Non-Masking Negative Tests**: In fallback/negative tests, do numeric values inside the invalid input select a *different* outcome from the fallback if partially parsed?
+- [ ] **Presentational Hints vs. Inline Style**: Do presentational hint tests avoid inline `style="width: auto; height: auto"` overrides that mask HTML `width`/`height` attributes?
+- [ ] **DPR Independence**: Are `srcset`/`sizes` candidate widths and test sizes chosen so selection holds across `window.devicePixelRatio` 1, 2, and 3+?
 
 ### Algorithmic Correctness & State
 - [ ] **Scope Leaks & Unbound Variables**: Are any variables declared with `Let` inside conditional sub-lists (`<ol>`) referenced outside that branch? (Initialize with `Let <var>x</var> be null` in outer scope).
 - [ ] **Pre-Initialization State Access**: Are capability checks, permissions policy, or environment settings queried on an object *before* its subordinate objects (`window.document`, parent) are linked?
 - [ ] **Fallback & Null Path Auditing**: When guarding an algorithm step with `If <var>controller</var> is non-null:`, what happens on the fallback path (`srcdoc`, `javascript:`, error pages)? Are entries or state dropped?
+- [ ] **Reactivity & Mutation-Hook Parity**: For every newly read DOM attribute, sibling element, CSS `computed value`, or layout box dimension, do `relevant mutations` / `attribute change steps` trigger with the *exact same guard conditions* (e.g., `being rendered`) and event-suppression flags?
+- [ ] **Candidate Loop Ordering**: Are eligibility filters (`srcset`, `media`, `type`) checked *before* side-effecting sub-algorithms, and are presentational hint updates (`dimension attribute source`) applied *before* layout reads (`content box`)?
+- [ ] **CSS & Microsyntax Boundaries**: Are CSS `component value` matches specified with exact token types (`<ident-token>`, `<whitespace-token>`), division by zero / `0` dimensions guarded, and `<span>ASCII whitespace</span>` cardinalities (`one or more`) explicit?
 - [ ] **Shallow Clones**: Are any cloned dictionaries/maps holding nested maps/lists? If so, are mutations safely isolated, or do they leak into the source object?
 - [ ] **Temporal State Snapshots**: Are dynamic locations (`adjusted insertion location`, context node, open elements) captured *before* any insertion or tree mutation?
 - [ ] **Object Construction Ordering**: Are all flags/modes finalized before object construction, or are object internal slots explicitly updated afterward?
