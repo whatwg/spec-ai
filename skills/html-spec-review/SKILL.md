@@ -168,24 +168,14 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
   - Ensure the fallback branch creates synthetic fallback structs or documents the intentional omission with matching WPT tests.
 
 ### 3.7. Reactivity & Mutation-Hook Parity Audit
-- **Failure Mode**: An algorithm starts reading a new DOM attribute, sibling/parent attribute, CSS `computed value`, or layout dimension, but the corresponding reactivity hooks (`relevant mutations`, `attribute change steps`, `HTML element insertion/removing steps`, `react to changes in the environment`) are missing or use different guards.
-- **Review Rule**:
-  1. **Completeness**: Dynamically mutating any newly read attribute, relative element, or CSS property must trigger the update algorithm.
-  2. **Guard condition parity**: The mutation trigger must use the *exact same guard condition* as the algorithm that reads the input (e.g., if a property is only read while `being rendered`, mutating it while `display: none` must not trigger an update).
-  3. **Event & flag parity**: New mutation triggers must set auxiliary flags (such as event-omission flags) consistently with existing triggers.
-  4. **Internal slot reset on fallback or removal**: When a candidate loop updates an internal association slot on the host element, reset the slot to its default at algorithm entry (when no candidate matches) and in `HTML element removing steps` when disconnected.
+- When an algorithm starts reading a new DOM attribute, relative element, CSS `computed value`, or layout dimension, check that the corresponding reactivity hooks (`relevant mutations`, `attribute change steps`, `HTML element insertion/removing steps`, `react to changes in the environment`):
+  1. **Trigger on all new inputs**: Dynamically mutating any newly read attribute, relative element, or CSS property triggers the update algorithm under the same guard conditions.
+  2. **Match existing flags**: New mutation triggers set auxiliary flags (such as event-omission flags) consistently with existing triggers.
+  3. **Image candidate selection (`<picture>`/`<img>`)**: Filter `<source>` candidates before mutating persistent state, reset host association slots on fallback or removal, update presentational hints before reading layout dimensions, and in WPT avoid inline `style` overriding presentational hints or `srcset`/`sizes` values sensitive to `window.devicePixelRatio`.
 
-### 3.8. Ordering in Candidate Loops
-- In algorithms that iterate over candidate elements (e.g. `<picture><source>`, `<video><source>`):
-  1. **Filter before side effects**: Check every eligibility filter before calling sub-algorithms that mutate persistent state.
-  2. **Update layout inputs before reading layout**: Update anything that affects layout (e.g. presentational hints) before steps that read layout dimensions.
-
-### 3.9. Author Script Re-Entrancy & Mid-Algorithm DOM Mutations
-- **Failure Mode**: Any algorithm that can invoke author script mid-execution (via custom element constructors/reactions, `<script>` execution, synchronous event/callback dispatch, or queued tasks/microtasks) cannot assume that DOM invariants validated at the start of the algorithm still hold afterward. Author script may detach the target, displace a `referenceChild`, reparent nodes, or `adoptNode()` the target into another `Document`.
-- **Review Rule**:
-  1. **Re-validate before side-effectful creation, not just at final insertion**: If a target or reference node is displaced by author script mid-algorithm, checking only at final DOM insertion is too late if earlier steps already created elements in a live `Document` (starting resource fetches or queueing custom element upgrades), ran speculative mock-element fetches, or pushed elements onto an open stack. Re-validate *before* element creation.
-  2. **Guard destructive intermediate steps on stale state**: Algorithms that remove and re-insert existing DOM nodes (such as the Adoption Agency Algorithm removing `lastNode`) must verify that the destination insertion location is still valid *before* detaching nodes that were already in the DOM.
-  3. **Avoid caching document-scoped state across script boundaries**: If author script can adopt a target node into another `Document` mid-operation, re-query document-scoped state (such as `node document` or `customElementRegistry`) dynamically rather than caching it at initialization, and check cross-document guards across both HTML `<script>` and SVG `<script>`.
+### 3.8. Author Script Re-Entrancy & Mid-Algorithm DOM Mutations
+- Any algorithm that can invoke author script mid-execution (via custom element constructors/reactions, `<script>` execution, synchronous event/callback dispatch, or queued tasks/microtasks) cannot assume that DOM invariants validated at the start of the algorithm still hold afterward. Author script may detach the target, displace a `referenceChild`, reparent nodes, or `adoptNode()` the target into another `Document`.
+- Re-validate DOM invariants after script can run — and before side-effectful element creation (which can start fetches or queue custom element upgrades), not just at final DOM insertion.
 
 ---
 
@@ -213,12 +203,8 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
 - **Review Rule**:
   - Use a centralized helper (e.g. "appropriate place for inserting a node" or "HTML insertion target") rather than ad-hoc inline checks at individual API call sites to avoid regressions across sibling methods.
 
-### 4.5. Shared Parser & Element Lifecycle Bleed Audit
-- **Failure Mode**: Modifying a shared parser or element algorithm (`create an element for a token`, `prepare the script element`, `the end`, `adoption agency algorithm`, `Noah's Ark clause`) for one feature and accidentally altering behavior in other parser contexts or element lifecycle hooks.
-- **Review Rule**:
-  1. **Audit all 4 parser contexts**: Verify the change against **(a) the normal document parser**, **(b) fragment parsers (`innerHTML`)**, **(c) the speculative HTML parser**, and **(d) the XML parser (`xhtml.html`)** so guards or new internal slots aren't inadvertently broadened or omitted in one parser.
-  2. **Audit `cloning steps` (`cloneNode`)**: When refactoring internal slots on elements (such as script inertness slots), check the element's `cloning steps` so `cloneNode()` preserves the invariant.
-  3. **Audit downstream consumers of token vs. element state**: If attribute filtering or mutation happens before attributes are appended to the element, check downstream parser steps that previously inspected the element's attributes (such as the Noah's Ark clause).
+### 4.5. Shared Parser Context Audit
+- When modifying a shared parser or element algorithm (`create an element for a token`, `prepare the script element`, `the end`, `adoption agency algorithm`), verify the change against all four parser contexts: **(a) the normal document parser**, **(b) fragment parsers (`innerHTML`)**, **(c) the speculative HTML parser**, and **(d) the XML parser (`xhtml.html`)**, so guards or new internal slots aren't inadvertently broadened or omitted in one parser.
 
 ---
 
@@ -517,18 +503,6 @@ Fragment parsing and DOM mutations vary significantly across node types. Ensure 
   - Tests for bug fixes or normative changes to **pre-existing standard APIs** (e.g., `innerHTML` on `<template>` or XML throwing behavior) MUST be added to standard, non-tentative WPT files.
 - **Masking Negative Tests**:
   - In a negative test that expects a fallback after invalid input, make sure no part of the invalid input would also select the expected outcome if a buggy parser partially accepted it.
-- **CSS Cascade vs. HTML Presentational Hints**:
-  - Don't set inline `style` for properties that a test expects presentational hints to set; author styles override hints, so the test can pass without them.
-- **Device Pixel Ratio (DPR) Sensitivity**:
-  - Choose `srcset`/`sizes` values so the selected candidate doesn't depend on `window.devicePixelRatio`, e.g. candidates close in width and test sizes far apart.
-- **Vacuously Passing ("Can't Fail") Tests**:
-  - *Unguarded `TypeError` on new methods*: Calling an unimplemented method (`obj.newMethod()`) throws `TypeError` in every browser. Always guard `assert_throws_js(TypeError, ...)` / `promise_rejects_js(..., TypeError, ...)` with `assert_implements` or a `typeof` check.
-  - *Preconditions blocked by unrelated spec rules*: Verify the test setup actually reaches the branch under test rather than returning early (e.g., parser-only flags tested on `createElement()` nodes, uncloned `parser-inserted` scripts, or accessing `window.parent` inside a detached `<iframe>`).
-  - *Dead tokens after parser stop/abort*: If an error stops the tokenizer on the first token, a single test with multiple elements only tests the first token; use separate tests per token.
-- **Literal `</script>` Inside Inline `<script>` Blocks**:
-  - Never write a literal `</script>` inside a JS comment or string literal in an HTML test's `<script>` block; the HTML tokenizer closes the `<script>` element early and fails the entire file with a `SyntaxError` (escape as `<\/script>`).
-- **Unbounded Wait Helpers & Post-Cleanup Callbacks**:
-  - Bound custom resource-wait helpers with a timeout (`step_timeout`) so missing fetches fail cleanly instead of stalling the test file, and invoke global test callbacks with optional chaining (`window.on_event?.()`) if loads can complete after test cleanup.
 
 ---
 
@@ -615,18 +589,13 @@ Before finalizing or approving any HTML specification PR, run through this compr
 - [ ] **Spec vs. Engine Truth**: Do tests assert the normative spec behavior rather than current browser engine quirks?
 - [ ] **Tentative Naming Correctness**: Are fixes to existing standard methods placed in non-tentative files, while novel APIs use `.tentative.html`?
 - [ ] **Non-Masking Negative Tests**: In fallback/negative tests, would partially parsing the invalid input select a *different* outcome from the fallback?
-- [ ] **Presentational Hints vs. Inline Style**: Do presentational hint tests avoid inline styles that override the hints?
-- [ ] **DPR Independence**: Does `srcset`/`sizes` candidate selection hold at any `window.devicePixelRatio`?
-- [ ] **No Vacuously Passing Tests**: Do `TypeError` tests assert the method exists first (`assert_implements` / `typeof`)? Does test setup actually reach the branch under test without hitting unrelated early returns?
-- [ ] **No Literal `</script>` in Inline Scripts**: Are all `</script>` strings/comments inside `.html` test `<script>` blocks escaped as `<\/script>`?
 
 ### Algorithmic Correctness & State
 - [ ] **Scope Leaks & Unbound Variables**: Are any variables declared with `Let` inside conditional sub-lists (`<ol>`) referenced outside that branch? (Initialize with `Let <var>x</var> be null` in outer scope).
 - [ ] **Pre-Initialization State Access**: Are capability checks, permissions policy, or environment settings queried on an object *before* its subordinate objects (`window.document`, parent) are linked?
 - [ ] **Fallback & Null Path Auditing**: When guarding an algorithm step with `If <var>controller</var> is non-null:`, what happens on the fallback path (`srcdoc`, `javascript:`, error pages)? Are entries or state dropped?
-- [ ] **Reactivity & Mutation-Hook Parity**: For every newly read DOM attribute, sibling element, CSS `computed value`, or layout box dimension, do `relevant mutations` / `attribute change steps` trigger with the *exact same guard conditions* (e.g., `being rendered`) and event-suppression flags?
-- [ ] **Candidate Loop Ordering**: Are eligibility filters checked *before* side-effecting sub-algorithms, and layout inputs updated *before* layout reads?
-- [ ] **Author Script Re-Entrancy & Mid-Algorithm Mutations**: If author script can run mid-algorithm (detaching targets, displacing `referenceChild`, or adopting into another `Document`), are displaced nodes intercepted *before* element creation, destructive intermediate steps guarded, and document-scoped state (`customElementRegistry`, HTML/SVG script guards) re-evaluated dynamically?
+- [ ] **Reactivity & Mutation-Hook Parity**: Do `relevant mutations` / `attribute change steps` trigger for every newly read attribute, relative element, or CSS property with matching guards and event flags?
+- [ ] **Author Script Re-Entrancy**: If author script can run mid-algorithm, are DOM invariants re-validated afterward (and before element creation)?
 - [ ] **CSS & Microsyntax Boundaries**: Are CSS `component value` matches specified with exact token types (`<ident-token>`, `<whitespace-token>`), division by zero / `0` dimensions guarded, and `<span>ASCII whitespace</span>` cardinalities (`one or more`) explicit?
 - [ ] **Shallow Clones**: Are any cloned dictionaries/maps holding nested maps/lists? If so, are mutations safely isolated, or do they leak into the source object?
 - [ ] **Temporal State Snapshots**: Are dynamic locations (`adjusted insertion location`, context node, open elements) captured *before* any insertion or tree mutation?
@@ -635,11 +604,11 @@ Before finalizing or approving any HTML specification PR, run through this compr
 - [ ] **Dictionary Types in Algorithms**: Are there any invalid `If options is a FooOptions` checks? (Check keys via `exists` or default fallback instead).
 
 ### Parser & Tree Construction
-- [ ] **Adoption Agency Algorithm**: Does AAA create, reparent, or clone elements without your new checks? Are parentless `lastNode`, displaced `referenceChild`, and self-append loops prevented?
+- [ ] **Adoption Agency Algorithm**: Does AAA create, reparent, or clone elements without your new checks? Are parentless `lastNode` and self-append loops prevented?
 - [ ] **Root & Body Attribute Merging**: Do duplicate start tags merge attributes without passing through element sanitization/validation?
 - [ ] **Speculative Parsing**: Does speculative parsing reflect any new blocking, sanitization, or script rules?
 - [ ] **Template Redirection**: Does every insertion method redirect `HTMLTemplateElement` to `template.content`?
-- [ ] **4-Context & Cloning Bleed Audit**: Do changes to shared parser/element algorithms preserve behavior across the document parser, non-streaming `innerHTML`, speculative parser, XML parser, and `cloneNode()`?
+- [ ] **Shared Parser Contexts**: Do changes to shared parser algorithms preserve behavior across the document parser, fragment parsers, speculative parser, and XML parser?
 
 ### Call Site & Architecture Audit
 - [ ] **Exhaustive Call Sites**: Have all sibling entry points (`Element.innerHTML`, `ShadowRoot.innerHTML`, `outerHTML`, `insertAdjacentHTML`, `createContextualFragment`, `parseFromString`, `setHTML`, `parseHTML`) been audited for signature changes?
