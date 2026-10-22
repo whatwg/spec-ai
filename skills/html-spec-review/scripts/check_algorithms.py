@@ -180,7 +180,9 @@ class AlgorithmAnalyzer:
                 ))
 
             # --- Check: Loop Control Formatting ('<span>continue</span>' / '<span>break</span>') ---
-            loop_ctrl_match = re.search(r'(?:<p>|<li>|\bOtherwise,\s+|\bthen\s+)(?<!<span>)\b(continue|break)\.', line)
+            loop_ctrl_match = re.search(r'(?:<p>|<li>|\bOtherwise,\s+|\bthen\s+)(continue|break)\.', line)
+            if not loop_ctrl_match and idx > 0 and re.search(r'(?:\bOtherwise,|\bthen)\s*$', lines[idx - 1]):
+                loop_ctrl_match = re.match(r'\s*(continue|break)\.', line)
             if loop_ctrl_match:
                 kw = loop_ctrl_match.group(1)
                 self.issues.append(AlgorithmIssue(
