@@ -43,4 +43,5 @@ reporting back. For what to check in HTML spec text, see `html-spec-review`.
 - Right before pushing, confirm each PR branch is still at the commit you built on, then push as a
   fast-forward. Never force-push.
 - Post one comment covering findings and fixes, citing the fix commit for each finding or saying
-  why it wasn't changed.
+  why it wasn't changed. Put questions to the author and follow-up items in their own section
+  before the findings, not inline, where they're easy to miss.
