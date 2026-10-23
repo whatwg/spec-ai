@@ -2,12 +2,13 @@
 """
 Web IDL Static Analyzer for WHATWG HTML Specification.
 
-Checks Web IDL blocks (<pre class="idl">) in HTML spec sources or diffs:
-1. Rule 1: Cross-references inside <pre class="idl"> must use <span>, NEVER <code>.
+Checks Web IDL blocks (<pre><code class="idl">) in HTML spec sources or diffs:
+1. Rule 1: Cross-references inside Web IDL blocks must use <span>, NEVER <code>.
 2. Rule 2: Optional dictionary arguments without required members must have default '= {}'.
 3. Additional: Prohibits <var> tags inside IDL blocks, and flags multiple member declarations on a single line.
 """
 
+import html
 import re
 import sys
 import argparse
@@ -37,9 +38,12 @@ class WebIDLAnalyzer:
         self.known_dictionaries: Dict[str, bool] = {}  # name -> has_required_members
 
     def extract_idl_blocks(self, content: str) -> List[Tuple[int, str]]:
-        """Finds all <pre class="idl">...</pre> blocks with starting line numbers."""
+        """Finds all <pre class="idl">...</pre> and <pre><code class="idl">...</code></pre> blocks with starting line numbers."""
         blocks = []
-        pattern = re.compile(r'<pre\s+class=["\']idl["\']>(.*?)</pre>', re.DOTALL | re.IGNORECASE)
+        pattern = re.compile(
+            r'<pre(?:\s+class=["\']idl["\']>|\s*><code\s+class=["\']idl["\']>)(.*?)(?:</code>)?</pre>',
+            re.DOTALL | re.IGNORECASE
+        )
         for match in pattern.finditer(content):
             start_pos = match.start(1)
             line_no = content[:start_pos].count('\n') + 1
@@ -59,6 +63,8 @@ class WebIDLAnalyzer:
             self.known_dictionaries[dict_name] = has_required
 
     def check_block(self, filename: str, block_start_line: int, block_text: str):
+        # Blank out comments (keeping line numbers), since they can hold commented-out IDL
+        block_text = re.sub(r'<!--.*?-->', lambda m: '\n' * m.group(0).count('\n'), block_text, flags=re.DOTALL)
         lines = block_text.split('\n')
 
         for idx, line in enumerate(lines):
@@ -69,7 +75,7 @@ class WebIDLAnalyzer:
             if code_match:
                 self.issues.append(IDLIssue(
                     filename, line_no, "IDL-XREF-SPAN",
-                    "Cross-reference inside <pre class=\"idl\"> uses <code> instead of <span>. In Web IDL blocks, always use <span>.",
+                    "Cross-reference inside a Web IDL block uses <code> instead of <span>. In Web IDL blocks, always use <span>.",
                     line
                 ))
 
@@ -78,7 +84,7 @@ class WebIDLAnalyzer:
             if var_match:
                 self.issues.append(IDLIssue(
                     filename, line_no, "IDL-NO-VAR",
-                    "Parameter or type name in <pre class=\"idl\"> is wrapped in <var>. Do not use <var> inside Web IDL.",
+                    "Parameter or type name in a Web IDL block is wrapped in <var>. Do not use <var> inside Web IDL.",
                     line
                 ))
 
@@ -117,7 +123,9 @@ class WebIDLAnalyzer:
 
             # Additional check: multiple member declarations on a single line (semicolons in middle)
             # Exclude lines that are comments or attribute/dictionary headers
-            clean_line = re.sub(r'//.*$', '', line).strip()
+            # Strip markup first: entities like '&lt;' and '&gt;' contain ';'
+            clean_line = html.unescape(re.sub(r'<[^>]+>', '', line))
+            clean_line = re.sub(r'//.*$', '', clean_line).strip()
             if clean_line.count(';') > 1 and not clean_line.startswith('for'):
                 self.issues.append(IDLIssue(
                     filename, line_no, "IDL-SINGLE-MEMBER-PER-LINE",

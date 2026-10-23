@@ -8,30 +8,28 @@ Checks algorithm blocks (<div algorithm>) in HTML spec sources or diffs:
    - Reassignment must be 'Set <var>x</var> to'.
    - Detects undeclared 'Set <var>x</var> to'.
    - Detects duplicate 'Let <var>x</var> be' declarations in the same scope.
-2. Rule 5: Dead initializations:
-   - Detects 'Let <var>x</var> be null' immediately before branching structures that overwrite <var>x</var>.
-3. Dictionary Type Checking in Algorithms (Untyped Infra Map):
-   - Prohibits checking 'If <var>x</var> is a <code>SomeOptions/Init/Config</code>' or 'is a dictionary'.
-4. Standard Namespace Casing:
+2. Dictionary Type Checking in Algorithms (Untyped Infra Map):
+   - Prohibits checking 'If <var>x</var> is a <code>SomeOptions/Init/Config</code>'.
+3. Standard Namespace Casing:
    - Flags uppercase 'Namespace' (e.g. <span>MathML Namespace</span>).
-5. Multi-interface Method Step Intro Qualification:
+4. Multi-interface Method Step Intro Qualification:
    - Flags unqualified intros like "The innerHTML setter steps are:" when methods exist across multiple interfaces.
-6. Scope Leaks & Unbound Variables:
+5. Scope Leaks & Unbound Variables:
    - Detects variables declared with 'Let' inside conditional branches (<ol> depth >= 2) that are referenced in outer scope.
-7. Unused Variables:
+6. Unused Variables:
    - Detects variables declared with 'Let' that are never read/referenced in the algorithm and lack '<var ignore>'.
-8. Infra List Iteration Syntax:
+7. Infra List Iteration Syntax:
    - Flags 'For each <var>x</var> in ...' (Infra requires 'of', not 'in').
-9. Assertion & Loop Control Formatting:
+8. Assertion & Loop Control Formatting:
    - Flags bare 'Assert:' lacking '<span>Assert</span>:' markup.
    - Flags bare 'continue.' or 'break.' in algorithm steps lacking '<span>continue</span>' / '<span>break</span>' markup.
-10. Redundant data-x:
-    - Flags '<span data-x="Foo">Foo</span>' where data-x equals inner text.
-11. Nested List Paragraph Closure:
+9. Redundant data-x:
+   - Flags '<span data-x="Foo">Foo</span>' where data-x equals inner text.
+10. Nested List Paragraph Closure:
     - Flags '<li><p>...<ol>' missing '</p>' before the nested list.
-12. Step Terminal Punctuation:
+11. Step Terminal Punctuation:
     - Flags leaf algorithm steps missing terminal '.' or ':'.
-13. Tag Formatting:
+12. Tag Formatting:
     - Flags newlines immediately preceding '>' in HTML tags.
 """
 
@@ -39,7 +37,7 @@ import re
 import sys
 import argparse
 from pathlib import Path
-from typing import List, Tuple, Dict, Set, Optional
+from typing import List, Tuple, Dict, Set
 
 
 class AlgorithmIssue:
@@ -150,7 +148,6 @@ class AlgorithmAnalyzer:
             ))
 
         lines = block_text.split('\n')
-        prev_line_dead_init: Optional[Tuple[int, str]] = None  # (line_no, var_name)
         list_depth = 0
         branch_declared_vars: Dict[str, int] = {}  # var_name -> decl_line_no for depth >= 2
         let_declared_vars: Dict[str, int] = {}     # var_name -> decl_line_no for unused var check
@@ -193,14 +190,14 @@ class AlgorithmAnalyzer:
 
             # --- Check: Untyped Dictionary Checking Anti-pattern ---
             dict_type_check = re.search(
-                r'If\s+<var>\w+</var>\s+is\s+(?:an?|the)\s+(?:<code>\w*(?:Options|Init|Config)</code>|dictionary)\b',
+                r'If\s+<var>\w+</var>\s+is\s+(?:an?|the)\s+<code>\w*(?:Options|Init|Config)</code>',
                 line,
                 re.IGNORECASE
             )
             if dict_type_check:
                 self.issues.append(AlgorithmIssue(
                     filename, line_no, "ALGO-DICT-TYPE-CHECK",
-                    "Checking dictionary type in algorithm prose. Web IDL dictionaries convert to untyped Infra maps without a type tag. Check member existence on the map (e.g., `If options[\"member\"] exists`) instead.",
+                    "Checking dictionary type in algorithm prose. Web IDL dictionaries convert to untyped Infra maps without a type tag, so this only makes sense for telling the members of an IDL union apart. Otherwise, check member existence on the map (e.g., `If options[\"member\"] exists`) instead.",
                     line
                 ))
 
@@ -228,11 +225,6 @@ class AlgorithmAnalyzer:
                     if not is_ignored:
                         let_declared_vars[var_name] = line_no
 
-                    # Track potential dead initialization: Let <var>x</var> be null
-                    if re.search(rf'\bLet\s+<var>{var_name}</var>\s+be\s+null\b', line):
-                        prev_line_dead_init = (line_no, var_name)
-                    else:
-                        prev_line_dead_init = None
 
             # Match: "Set <var>x</var> to"
             set_matches = re.finditer(r'\bSet\s+<var>(\w+)</var>\s+to\b', line)
@@ -257,19 +249,6 @@ class AlgorithmAnalyzer:
                                 line
                             ))
                             del branch_declared_vars[b_var]
-
-            # --- Rule 5: Dead initializations ---
-            if prev_line_dead_init:
-                dead_line, dead_var = prev_line_dead_init
-                if idx < len(lines) - 1 and re.search(r'If\s+.*?:', line):
-                    next_chunk = "\n".join(lines[idx:min(idx + 10, len(lines))])
-                    if next_chunk.count(f'Set <var>{dead_var}</var> to') >= 2 and 'Otherwise' in next_chunk:
-                        self.issues.append(AlgorithmIssue(
-                            filename, dead_line, "ALGO-DEAD-INIT",
-                            f"Dead initialization of '<var>{dead_var}</var>' to null immediately before an If/Otherwise block where all branches set its value. Declare without null or assign directly in branches.",
-                            line
-                        ))
-                prev_line_dead_init = None
 
             # Terminal punctuation check for leaf steps (<li><p>...</p></li>)
             leaf_step_match = re.search(r'<li>\s*<p>(.*?)</p>\s*</li>', line)
