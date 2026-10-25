@@ -27,8 +27,8 @@ below holds. Don't push or post between rounds.
   what it finds; keep looping only if it finds more than nits and no round in this invocation
   raised a new open question.
 - Never run more than five rounds. If four rounds pass without a full round, make the fifth full.
-- Problems in your own unpushed fixes aren't separate findings. Fix them, and cite every fix commit
-  on the original finding.
+- Problems in your own unpushed fixes aren't reported as separate findings: fix them, and cite every
+  fix commit on the original finding. They still count, at their severity, for the stop conditions.
 
 ## Reviewing
 
