@@ -26,8 +26,9 @@ below holds. Don't push or post between rounds.
     fixes first; or
   - it was the tenth round: fix its findings, and if it found more than nits or was a delta round,
     and raised no new open question, tell the user that the loop didn't converge.
-- Problems in your own unpushed fixes aren't reported as separate findings: fix them, and cite every
-  fix commit on the original finding. They still count, at their severity, for the stop conditions.
+- Problems in your own unpushed fixes aren't reported as separate findings: fix them with a fixup
+  commit for that fix (`git commit --fixup`). They still count, at their severity, for the stop
+  conditions.
 - Items you deliberately leave with the author, in this invocation or an earlier review (findings
   you declined to fix, follow-ups, questions still unanswered), don't count as findings for the stop
   conditions; a new open question still stops the loop. Open findings carried over from an earlier
@@ -78,10 +79,20 @@ below holds. Don't push or post between rounds.
 
 ## Stop, push, report
 
-- After the loop, stop and let the user review locally: list the commits, show the draft comment,
-  and say how many rounds ran, why the loop stopped, and which fixes had only self-review (those
-  from the last round, unless it found nothing). Ask before pushing or posting anything,
-  unless the prompt already asked you to.
+- After the loop, squash the fixup commits into their fixes, so each finding has one commit: note
+  `HEAD`'s commit ID, then run `git rebase --autosquash <the remote PR head you built on>` (Git 2.44
+  or later), which leaves pushed commits alone. If it stops for any reason (a conflict, or a commit
+  left empty), abort it with `git rebase --abort`, keep the unsquashed commits, and tell the user.
+  Then check that the tree is unchanged; if it isn't, go back with `git reset --hard <noted ID>`
+  (the one reset this skill allows) and tell the user.
+- Then stop and let the user review locally: list the commits, show the draft comment, and say how
+  many rounds ran, why the loop stopped, and which fixes had only self-review: name the findings and
+  fixups from the last round and what each changed, since squashing hides that (none if it found
+  nothing). Ask before pushing or posting anything, unless the prompt already asked you to.
+- If you commit anything while the user reviews, self-review it, add any new finding or open
+  question to the draft comment, squash again the same way, and update the cited commits. If the
+  draft changed beyond the cited commits, show it again before pushing, unless the user already said
+  to push.
 - Right before pushing, confirm each PR branch is still at the commit you built on, then push each
   `-fixes` branch to its PR branch as a fast-forward. Never force-push. If either branch moved since
   you built on it, don't push or post anything; tell the user. If a push fails, post nothing; tell
