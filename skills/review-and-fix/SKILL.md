@@ -13,8 +13,8 @@ below holds. Don't push or post between rounds.
 
 ## Rounds
 
-- A *full* round reviews the whole PR at its current state, spec and tests, running the tests as
-  described under Reviewing. A *delta* round reviews only what changed since the previous round
+- A *full* round reviews the whole PR at its current state, including any tests, run as described
+  under Reviewing. A *delta* round reviews only what changed since the previous round
   (your fix commits, or in a first round, commits the author pushed since your last posted review)
   and how it interacts with the rest.
 - The first round is full, unless your review was posted in an earlier invocation; then it may be a
@@ -63,7 +63,7 @@ below holds. Don't push or post between rounds.
 ## Self-review
 
 - In every round, re-read the cumulative diff, then re-lint, rebuild, and rerun the changed tests
-  the way you ran them during review.
+  the way you ran them during review, where the repo has them.
 
 ## Stop, push, report
 
