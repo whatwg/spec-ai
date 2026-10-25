@@ -16,8 +16,8 @@ below holds. Don't push or post between rounds.
 - A *full* round reviews the whole PR at its current state, spec and tests, running the tests as
   described under Reviewing. A *delta* round reviews only what changed since the previous round
   (your fix commits, or commits the author pushed) and how it interacts with the rest.
-- The first round is full, unless the PR was reviewed in an earlier invocation; then it may be a
-  delta round over the commits since then. Later rounds are delta rounds, except as below.
+- The first round is full, unless your review was posted in an earlier invocation; then it may be a
+  delta round over the commits since that review. Later rounds are delta rounds, except as below.
 - Stop after a round when:
   - it found nothing, or only nits: fix the nits and self-review, without another delta round;
   - it raised a new open question, something only the author can decide: finish the round's other
