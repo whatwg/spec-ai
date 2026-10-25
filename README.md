@@ -12,7 +12,7 @@ AI tooling and agent skills for working with WHATWG standards.
 
   Also includes [`html-style-guide.md`](skills/html-spec-review/html-style-guide.md), a de-facto house style guide for the HTML Standard's `source` with stable rule IDs, spec examples, and Modern/Accepted/Legacy/Obsolete rankings where the spec uses competing styles.
 
-- **[`review-and-fix`](skills/review-and-fix/SKILL.md)**: Workflow for reviewing a WHATWG spec PR together with its [web-platform-tests](https://github.com/web-platform-tests/wpt) PR, then fixing the findings on the PR branches: one commit per finding, self-review (lint, build, running the tests in browsers that do and don't implement the feature), repeated in rounds until a round finds only nits or raises an open question, then pushing and posting a findings-and-fixes comment.
+- **[`review-and-fix`](skills/review-and-fix/SKILL.md)**: Workflow for reviewing a WHATWG spec PR together with its [web-platform-tests](https://github.com/web-platform-tests/wpt) PR, then fixing the findings on the PR branches: one commit per finding, self-review (lint, build, running the tests in browsers that do and don't implement the feature), repeated in rounds (at most five, at least one full review) until a round finds only nits or raises a new open question, then, after asking unless told to, pushing and posting a findings-and-fixes comment.
 
 ## Usage
 

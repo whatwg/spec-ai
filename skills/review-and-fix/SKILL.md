@@ -1,6 +1,6 @@
 ---
 name: review-and-fix
-description: Use when asked to review a WHATWG spec PR together with its web-platform-tests PR and then fix the findings yourself, i.e., check out the PR branches, then repeat rounds of review, a fix commit per finding, and self-review until a round comes back clean, push to the PR branches, and post one findings-and-fixes comment. Triggers on "review and fix", "fix your review comments", "fix those things and push", "review the PRs again and fix".
+description: Use when asked to review a WHATWG spec PR together with its web-platform-tests PR and then fix the findings yourself, i.e., check out the PR branches, then repeat rounds of review, a fix commit per finding, and self-review until a round finds only nits or raises a new open question (at most five rounds, at least one full review), then, after asking unless told to, push to the PR branches and post one findings-and-fixes comment. Triggers on "review and fix", "fix your review comments", "fix those things and push", "review the PRs again and fix".
 ---
 
 # review-and-fix
