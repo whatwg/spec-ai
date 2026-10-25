@@ -25,7 +25,7 @@ below holds. Don't push or post between rounds.
   - it raised a new open question, something only the author can decide: finish the round's other
     fixes first; or
   - it was the tenth round: fix its findings, and if it found more than nits or was a delta round,
-    and raised no new open question, report that the loop didn't converge.
+    and raised no new open question, tell the user that the loop didn't converge.
 - Problems in your own unpushed fixes aren't reported as separate findings: fix them, and cite every
   fix commit on the original finding. They still count, at their severity, for the stop conditions.
 - Items you deliberately leave with the author, in this invocation or an earlier review (findings
@@ -79,7 +79,8 @@ below holds. Don't push or post between rounds.
 ## Stop, push, report
 
 - After the loop, stop and let the user review locally: list the commits, show the draft comment,
-  and say how many rounds ran and why the loop stopped. Ask before pushing or posting anything,
+  and say how many rounds ran, why the loop stopped, and which fixes had only self-review (those
+  from the last round, unless it found nothing). Ask before pushing or posting anything,
   unless the prompt already asked you to.
 - Right before pushing, confirm each PR branch is still at the commit you built on, then push each
   `-fixes` branch to its PR branch as a fast-forward. Never force-push. If either branch moved since
@@ -88,3 +89,5 @@ below holds. Don't push or post between rounds.
   including fixes from earlier in the conversation that you're pushing, citing the current fix
   commits for each finding or saying why it wasn't changed. Put questions to the author and
   follow-up items in their own section before the findings, not inline, where they're easy to miss.
+  Include only what's relevant to the author: leave out how the review was run (rounds, reviewers,
+  which fixes were re-reviewed), but keep how the fixes were checked (lint, build, test results).
