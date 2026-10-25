@@ -22,8 +22,8 @@ below holds. Don't push or post between rounds.
   - it found nothing, or only nits: fix the nits and self-review;
   - it raised a new open question, something only the author can decide: finish the round's other
     fixes first; or
-  - it was the tenth round: if it found more than nits and raised no new open question, report that
-    the loop didn't converge.
+  - it was the tenth round: fix its findings, and if it found more than nits and raised no new open
+    question, report that the loop didn't converge.
 - Problems in your own unpushed fixes aren't reported as separate findings: fix them, and cite every
   fix commit on the original finding. They still count, at their severity, for the stop conditions.
 
