@@ -1,6 +1,6 @@
 ---
 name: review-and-fix
-description: Use when asked to review a WHATWG spec PR together with its web-platform-tests PR and then fix the findings yourself, i.e., check out the PR branches, then repeat rounds of review, a fix commit per finding, and self-review until a round finds only nits or raises a new open question (at most ten rounds, starting with a full review), then, after asking unless told to, push to the PR branches and post one findings-and-fixes comment. Triggers on "review and fix", "fix your review comments", "fix those things and push", "review the PRs again and fix".
+description: Use when asked to review a WHATWG spec PR together with its web-platform-tests PR and then fix the findings yourself, i.e., check out the PR branches, then repeat rounds of review, a fix commit per finding, and self-review until a full round finds only nits or a round raises a new open question (at most ten rounds), then, after asking unless told to, push to the PR branches and post one findings-and-fixes comment. Triggers on "review and fix", "fix your review comments", "fix those things and push", "review the PRs again and fix".
 ---
 
 # review-and-fix
@@ -17,15 +17,21 @@ below holds. Don't push or post between rounds.
   under Reviewing, and looks closely at what changed since your last posted review. A *delta*
   round reviews only your fix commits since the previous round and how they interact with the
   rest.
-- The first round is full; later rounds are delta rounds.
+- The first round is full; later rounds are delta rounds, except as below.
 - Stop after a round when:
-  - it found nothing, or only nits: fix the nits and self-review;
+  - it found nothing, or only nits: fix the nits and self-review. If it was a delta round, make
+    the next round full instead of stopping, unless it was the tenth round or raised a new open
+    question;
   - it raised a new open question, something only the author can decide: finish the round's other
     fixes first; or
-  - it was the tenth round: fix its findings, and if it found more than nits and raised no new open
-    question, report that the loop didn't converge.
+  - it was the tenth round: fix its findings, and if it found more than nits or was a delta round,
+    and raised no new open question, report that the loop didn't converge.
 - Problems in your own unpushed fixes aren't reported as separate findings: fix them, and cite every
   fix commit on the original finding. They still count, at their severity, for the stop conditions.
+- Items you deliberately leave with the author, in this invocation or an earlier review (findings
+  you declined to fix, follow-ups, questions still unanswered), don't count as findings for the stop
+  conditions; a new open question still stops the loop. Open findings carried over from an earlier
+  review, which you fix, do count.
 
 ## Reviewing
 
