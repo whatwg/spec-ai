@@ -33,8 +33,8 @@ below holds. Don't push or post between rounds.
 
 ## Reviewing
 
-- Review from the current PR heads plus your unpushed fixes, after reading comments since the last
-  round.
+- Review your local branches: the PR heads at the start of the invocation plus your fixes. At the
+  start, read the comments since your last posted review (all of them, if you haven't posted one).
 - For large PRs, split the review across parallel reviewers, and tell them what's already reported,
   fixed, or decided by the author. In delta rounds, give fresh reviewers the diff since the previous
   round. Verify every finding yourself before reporting it.
