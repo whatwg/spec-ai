@@ -60,8 +60,10 @@ below holds. Don't push or post between rounds.
   branch prefix if the PR branch lacks it), and keep using it across rounds; a local branch with the
   PR's name may hold unrelated unpushed commits. If it doesn't exist, create it from the remote PR
   head. Never reset or delete an existing branch. If the `-fixes` branch exists:
-  - with your unpushed fixes from earlier in this conversation, continue it, rebased onto the remote
-    PR head if it moved;
+  - with your unpushed fixes from earlier in this conversation, continue it. If the remote PR head
+    moved, rebase only your fixes onto it (`git rebase --reapply-cherry-picks --empty=stop --onto
+    <new head> <the head you built on>`, so no fix is dropped silently), and if that stops, abort it
+    and ask the user;
   - with no unpushed commits, fast-forward it to the remote PR head;
   - otherwise, including when it can't be fast-forwarded, ask the user.
 - One commit per finding, so each fix can be cited.
