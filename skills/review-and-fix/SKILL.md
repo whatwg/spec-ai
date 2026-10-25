@@ -17,13 +17,13 @@ below holds. Don't push or post between rounds.
   described under Reviewing. A *delta* round reviews only what changed since the previous round
   (your fix commits, or commits the author pushed) and how it interacts with the rest.
 - The first round is full, unless the PR was reviewed in an earlier invocation; then it may be a
-  delta round over the commits since then. Later rounds are delta rounds.
+  delta round over the commits since then. Later rounds are delta rounds, except as below.
 - Stop after a round when:
-  - it found nothing, or only nits: fix the nits and self-review, without another round;
+  - it found nothing, or only nits: fix the nits and self-review, without another delta round;
   - it raised an open question, something only the author can decide: finish the round's other
     fixes first; or
   - it was the fifth round: report that the loop didn't converge.
-- Before stopping, make sure the invocation included a full round. If not, run one now and fix
+- But before stopping, make sure the invocation included a full round. If not, run one now and fix
   what it finds; keep looping only if it finds more than nits and no open question is pending.
 - Never run more than five rounds. If four rounds pass without a full round, make the fifth full.
 - Problems in your own unpushed fixes aren't separate findings. Fix them, and cite every fix commit
