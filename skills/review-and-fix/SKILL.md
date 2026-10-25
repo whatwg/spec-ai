@@ -25,6 +25,7 @@ below holds. Don't push or post between rounds.
   - it was the fifth round: report that the loop didn't converge.
 - Before stopping, make sure the invocation included a full round. If not, run one now and fix
   what it finds; keep looping only if it finds more than nits and no open question is pending.
+- Never run more than five rounds. If four rounds pass without a full round, make the fifth full.
 - Problems in your own unpushed fixes aren't separate findings. Fix them, and cite every fix commit
   on the original finding.
 
