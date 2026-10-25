@@ -31,6 +31,9 @@ below holds. Don't push or post between rounds.
 
 - Review your local branches: the PR heads at the start of the invocation plus your fixes. At the
   start, read the comments since your last posted review (all of them, if you haven't posted one).
+- The first round's findings include what's still open from your last posted review, or from your
+  last draft comment if it wasn't posted: findings neither fixed nor declined, and the answers (the
+  author's or the user's) to its open questions.
 - For large PRs, split the review across parallel reviewers, and tell them what's already reported,
   fixed, or decided by the author. In delta rounds, give fresh reviewers the diff since the previous
   round. Verify every finding yourself before reporting it.
