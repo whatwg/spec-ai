@@ -84,7 +84,8 @@ below holds. Don't push or post between rounds.
   unless the prompt already asked you to.
 - Right before pushing, confirm each PR branch is still at the commit you built on, then push each
   `-fixes` branch to its PR branch as a fast-forward. Never force-push. If either branch moved since
-  you built on it, push and post nothing; tell the user.
+  you built on it, don't push or post anything; tell the user. If a push fails, post nothing; tell
+  the user which branches were pushed.
 - Post one comment covering findings and fixes from all rounds since your last posted review,
   including fixes from earlier in the conversation that you're pushing, citing the current fix
   commits for each finding or saying why it wasn't changed. Put questions to the author and
