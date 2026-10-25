@@ -20,11 +20,12 @@ below holds. Don't push or post between rounds.
   delta round over the commits since then. Later rounds are delta rounds, except as below.
 - Stop after a round when:
   - it found nothing, or only nits: fix the nits and self-review, without another delta round;
-  - it raised an open question, something only the author can decide: finish the round's other
+  - it raised a new open question, something only the author can decide: finish the round's other
     fixes first; or
   - it was the fifth round: report that the loop didn't converge.
 - But before stopping, make sure the invocation included a full round. If not, run one now and fix
-  what it finds; keep looping only if it finds more than nits and no open question is pending.
+  what it finds; keep looping only if it finds more than nits and no round in this invocation
+  raised a new open question.
 - Never run more than five rounds. If four rounds pass without a full round, make the fifth full.
 - Problems in your own unpushed fixes aren't separate findings. Fix them, and cite every fix commit
   on the original finding.
