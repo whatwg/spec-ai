@@ -15,7 +15,8 @@ below holds. Don't push or post between rounds.
 
 - A *full* round reviews the whole PR at its current state, spec and tests, running the tests as
   described under Reviewing. A *delta* round reviews only what changed since the previous round
-  (your fix commits, or commits the author pushed) and how it interacts with the rest.
+  (your fix commits, or in a first round, commits the author pushed since your last posted review)
+  and how it interacts with the rest.
 - The first round is full, unless your review was posted in an earlier invocation; then it may be a
   delta round over the commits since that review. Later rounds are delta rounds, except as below.
 - Stop after a round when:
@@ -70,7 +71,8 @@ below holds. Don't push or post between rounds.
   and say how many rounds ran and why the loop stopped. Ask before pushing or posting anything,
   unless the prompt already asked you to.
 - Right before pushing, confirm each PR branch is still at the commit you built on, then push as a
-  fast-forward. Never force-push.
+  fast-forward. Never force-push. If either branch moved since you built on it, push and post
+  nothing; tell the user.
 - Post one comment covering findings and fixes from all rounds, citing the fix commits for each
   finding or saying why it wasn't changed. Put questions to the author and follow-up items in
   their own section before the findings, not inline, where they're easy to miss.
