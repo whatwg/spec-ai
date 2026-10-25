@@ -55,8 +55,14 @@ below holds. Don't push or post between rounds.
 
 ## Fixing
 
-- At the start of the invocation, create a fresh local branch from the remote PR head, and keep
-  using it across rounds; a local branch with the PR's name may hold unpushed commits.
+- At the start, use a local branch named after the PR branch with a `-fixes` suffix (adding your
+  branch prefix if the PR branch lacks it), and keep using it across rounds; a local branch with the
+  PR's name may hold unrelated unpushed commits. If it doesn't exist, create it from the remote PR
+  head. Never reset or delete an existing branch. If the `-fixes` branch exists:
+  - with your unpushed fixes from earlier in this conversation, continue it, rebased onto the remote
+    PR head if it moved;
+  - with no unpushed commits, fast-forward it to the remote PR head;
+  - otherwise, including when it can't be fast-forwarded, ask the user.
 - One commit per finding, so each fix can be cited.
 - If the obvious fix regresses something and the right behavior is a judgment call, don't change
   behavior; fix any inaccurate notes and ask the PR author in the comment.
@@ -75,9 +81,10 @@ below holds. Don't push or post between rounds.
 - After the loop, stop and let the user review locally: list the commits, show the draft comment,
   and say how many rounds ran and why the loop stopped. Ask before pushing or posting anything,
   unless the prompt already asked you to.
-- Right before pushing, confirm each PR branch is still at the commit you built on, then push as a
-  fast-forward. Never force-push. If either branch moved since you built on it, push and post
-  nothing; tell the user.
-- Post one comment covering findings and fixes from all rounds, citing the fix commits for each
-  finding or saying why it wasn't changed. Put questions to the author and follow-up items in
-  their own section before the findings, not inline, where they're easy to miss.
+- Right before pushing, confirm each PR branch is still at the commit you built on, then push each
+  `-fixes` branch to its PR branch as a fast-forward. Never force-push. If either branch moved since
+  you built on it, push and post nothing; tell the user.
+- Post one comment covering findings and fixes from all rounds since your last posted review,
+  including fixes from earlier in the conversation that you're pushing, citing the current fix
+  commits for each finding or saying why it wasn't changed. Put questions to the author and
+  follow-up items in their own section before the findings, not inline, where they're easy to miss.
