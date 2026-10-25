@@ -23,7 +23,8 @@ below holds. Don't push or post between rounds.
   - it found nothing, or only nits: fix the nits and self-review, without another delta round;
   - it raised a new open question, something only the author can decide: finish the round's other
     fixes first; or
-  - it was the fifth round: report that the loop didn't converge.
+  - it was the fifth round: if it found more than nits and raised no new open question, report that
+    the loop didn't converge.
 - But before stopping, make sure the invocation included a full round. If not, run one now and fix
   what it finds; keep looping only if it finds more than nits and no round in this invocation
   raised a new open question.
