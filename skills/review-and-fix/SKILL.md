@@ -49,8 +49,8 @@ below holds. Don't push or post between rounds.
 
 ## Fixing
 
-- Work on a fresh local branch from the remote PR head; a local branch with the PR's name may hold
-  unpushed commits.
+- At the start of the invocation, create a fresh local branch from the remote PR head, and keep
+  using it across rounds; a local branch with the PR's name may hold unpushed commits.
 - One commit per finding, so each fix can be cited.
 - If the obvious fix regresses something and the right behavior is a judgment call, don't change
   behavior; fix any inaccurate notes and ask the PR author in the comment.
