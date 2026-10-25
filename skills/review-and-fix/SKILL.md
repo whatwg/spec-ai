@@ -41,8 +41,8 @@ below holds. Don't push or post between rounds.
   last draft comment if it wasn't posted: findings neither fixed nor declined, and the answers (the
   author's or the user's) to its open questions.
 - For large PRs, split the review across parallel reviewers, and tell them what's already reported,
-  fixed, or decided by the author. In delta rounds, give fresh reviewers the diff since the previous
-  round. Verify every finding yourself before reporting it.
+  fixed, or decided by the author or the user. In delta rounds, give fresh reviewers the diff since
+  the previous round. Verify every finding yourself before reporting it.
 - Reading misses things that running catches:
   - Run every test file where the feature is implemented, and look for harness errors and
     timeouts, not just failures.
