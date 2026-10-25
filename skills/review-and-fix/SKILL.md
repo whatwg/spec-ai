@@ -1,6 +1,6 @@
 ---
 name: review-and-fix
-description: Use when asked to review a WHATWG spec PR together with its web-platform-tests PR and then fix the findings yourself, i.e., check out the PR branches, find issues, commit a fix per finding, self-review, push to the PR branches, and post a findings-and-fixes comment. Triggers on "review and fix", "fix your review comments", "fix those things and push", "review the PRs again and fix".
+description: Use when asked to review a WHATWG spec PR together with its web-platform-tests PR and then fix the findings yourself, i.e., check out the PR branches, then repeat rounds of review, a fix commit per finding, and self-review until a round comes back clean, push to the PR branches, and post one findings-and-fixes comment. Triggers on "review and fix", "fix your review comments", "fix those things and push", "review the PRs again and fix".
 ---
 
 # review-and-fix
@@ -8,11 +8,33 @@ description: Use when asked to review a WHATWG spec PR together with its web-pla
 Workflow for reviewing a spec PR with its wpt PR, fixing what you find on the PR branches, and
 reporting back. For what to check in HTML spec text, see `html-spec-review`.
 
+One invocation runs rounds of review, fixing, and self-review in a loop until a stop condition
+below holds. Don't push or post between rounds.
+
+## Rounds
+
+- A *full* round reviews the whole PR at its current state, spec and tests, running the tests as
+  described under Reviewing. A *delta* round reviews only what changed since the previous round
+  (your fix commits, or commits the author pushed) and how it interacts with the rest.
+- The first round is full, unless the PR was reviewed in an earlier invocation; then it may be a
+  delta round over the commits since then. Later rounds are delta rounds.
+- Stop after a round when:
+  - it found nothing, or only nits: fix the nits and self-review, without another round;
+  - it raised an open question, something only the author can decide: finish the round's other
+    fixes first; or
+  - it was the fifth round: report that the loop didn't converge.
+- Before stopping, make sure the invocation included a full round. If not, run one now and fix
+  what it finds; keep looping only if it finds more than nits and no open question is pending.
+- Problems in your own unpushed fixes aren't separate findings. Fix them, and cite every fix commit
+  on the original finding.
+
 ## Reviewing
 
-- Review from the current PR heads, after reading comments since the last round.
-- For large PRs, split the review across parallel reviewers, and tell them what's already reported
-  or decided by the author. Verify every finding yourself before reporting it.
+- Review from the current PR heads plus your unpushed fixes, after reading comments since the last
+  round.
+- For large PRs, split the review across parallel reviewers, and tell them what's already reported,
+  fixed, or decided by the author. In delta rounds, give fresh reviewers the diff since the previous
+  round. Verify every finding yourself before reporting it.
 - Reading misses things that running catches:
   - Run every test file where the feature is implemented, and look for harness errors and
     timeouts, not just failures.
@@ -20,6 +42,7 @@ reporting back. For what to check in HTML spec text, see `html-spec-review`.
   - Scan inline scripts for a literal `</script>`; it ends the script element.
 - A failing test is a finding only if it contradicts the spec, can't fail, is flaky, leaks state,
   or stalls the file. Otherwise it's an implementation gap.
+- Classify each verified finding as a blocker, suggestion, or nit; the stop conditions depend on it.
 - Say so if one of your own earlier suggestions caused a problem.
 
 ## Fixing
@@ -34,14 +57,18 @@ reporting back. For what to check in HTML spec text, see `html-spec-review`.
 - Waits and cleanups that depend on the behavior under test should time out, so one failure
   doesn't stall the rest of the file.
 
-## Self-review, push, report
+## Self-review
 
-- Re-read the cumulative diff, then re-lint, rebuild, and rerun the changed tests the way you ran
-  them during review.
-- Then stop and let the user review locally: list the commits and show the draft comment. Ask
-  before pushing or posting anything, unless the prompt already asked you to.
+- In every round, re-read the cumulative diff, then re-lint, rebuild, and rerun the changed tests
+  the way you ran them during review.
+
+## Stop, push, report
+
+- After the loop, stop and let the user review locally: list the commits, show the draft comment,
+  and say how many rounds ran and why the loop stopped. Ask before pushing or posting anything,
+  unless the prompt already asked you to.
 - Right before pushing, confirm each PR branch is still at the commit you built on, then push as a
   fast-forward. Never force-push.
-- Post one comment covering findings and fixes, citing the fix commit for each finding or saying
-  why it wasn't changed. Put questions to the author and follow-up items in their own section
-  before the findings, not inline, where they're easy to miss.
+- Post one comment covering findings and fixes from all rounds, citing the fix commits for each
+  finding or saying why it wasn't changed. Put questions to the author and follow-up items in
+  their own section before the findings, not inline, where they're easy to miss.
