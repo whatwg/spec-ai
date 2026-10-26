@@ -17,15 +17,15 @@ below holds. Don't push or post between rounds.
   under Reviewing, and looks closely at what changed since your last posted review. A *delta*
   round reviews only your fix commits since the previous round and how they interact with the
   rest.
-- The first round is full; later rounds are delta rounds, except as below.
+- The first and tenth rounds are full, and the tenth also looks closely at the previous round's
+  fixes; other rounds are delta rounds, except as below.
 - Stop after a round when:
   - it found nothing, or only nits: fix the nits and self-review. If it was a delta round, make
-    the next round full instead of stopping, unless it was the tenth round or raised a new open
-    question;
+    the next round full instead of stopping, unless it raised a new open question;
   - it raised a new open question, something only the author can decide: finish the round's other
     fixes first; or
-  - it was the tenth round: fix its findings, and if it found more than nits or was a delta round,
-    and raised no new open question, tell the user that the loop didn't converge.
+  - it was the tenth round: fix its findings, and if it found more than nits and raised no new
+    open question, tell the user that the loop didn't converge.
 - Problems in your own unpushed fixes aren't reported as separate findings: fix them with a fixup
   commit for that fix (`git commit --fixup`). They still count, at their severity, for the stop
   conditions.
