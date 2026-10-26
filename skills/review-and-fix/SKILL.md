@@ -66,6 +66,8 @@ below holds. Don't push or post between rounds.
     and ask the user;
   - with no unpushed commits, fast-forward it to the remote PR head;
   - otherwise, including when it can't be fast-forwarded, ask the user.
+- If a checkout has uncommitted changes to tracked files at the start, or before you switch it, ask
+  the user.
 - One commit per finding, so each fix can be cited.
 - If the obvious fix regresses something and the right behavior is a judgment call, don't change
   behavior; fix any inaccurate notes and ask the PR author in the comment.
