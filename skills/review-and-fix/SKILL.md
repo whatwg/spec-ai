@@ -62,8 +62,8 @@ below holds. Don't push or post between rounds.
   head. Never reset or delete an existing branch. If the `-fixes` branch exists:
   - with your unpushed fixes from earlier in this conversation, continue it. If the remote PR head
     moved, rebase only your fixes onto it (`git rebase --reapply-cherry-picks --empty=stop --onto
-    <new head> <the head you built on>`, so no fix is dropped silently), and if that stops, abort it
-    and ask the user;
+    <new head> <the head you built on>`, Git 2.45 or later, so no fix is dropped silently), and if
+    that stops, abort it and ask the user;
   - with no unpushed commits, fast-forward it to the remote PR head;
   - otherwise, including when it can't be fast-forwarded, ask the user.
 - If a checkout has uncommitted changes to tracked files at the start, or before you switch it, ask
