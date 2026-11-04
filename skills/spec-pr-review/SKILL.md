@@ -39,6 +39,7 @@ never reuse one; number new ones after the highest. Each item has a one-line sta
 state:
 
 - *open* (a question) or *proposed* (a defect with a proposed fix not yet applied);
+- *decided, not applied*: a decider chose, but the working branch doesn't have it yet;
 - *decided*: the chosen option or fix and where it's recorded, as a link to a decider's PR
   comment or a commit whose message explains why this option over the others, or *unrecorded*
   (decided in conversation, or a commit without that explanation);
@@ -65,6 +66,7 @@ Run the design phase if any of these hold:
 - commits since the last design review change normative text or test expectations: review only
   those commits, plus the open items;
 - an item is open or proposed;
+- an item is decided but not applied: apply it as in `design.md` §7, asking before you commit;
 - you're unsure about any of the above: scope the design phase to what's unclear.
 
 Otherwise run the editorial phase. If the design phase ends with no open or proposed items,
