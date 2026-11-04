@@ -56,9 +56,10 @@ evidence (a prototype or test shows it breaks something), as a new question that
 unrecorded decision may be questioned for a substantive problem; say it may already have been
 decided.
 
-The last design review is the latest of: a design review in this conversation, a posted design
-comment (its "Reviewed at <sha>" line), a deciders' approval of the design, or the fork point of
-existing `-proposed` and `-q*` branches.
+The last design review is the latest of: a design review in this conversation, a design comment
+posted by this skill (its "Reviewed at <sha>" line and D/Q items), a deciders' approval of the
+design, or the fork point of existing `-proposed` and `-q*` branches. Other reviews, human or
+AI, aren't design reviews; their open normative points become new items.
 
 ## Pick the phase
 
