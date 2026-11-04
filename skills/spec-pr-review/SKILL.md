@@ -35,7 +35,9 @@ the local wpt checkout). A normative change without tests is a design finding.
 
 Rebuild it on every run. It lists design items: defects (D1, D2, …) and design questions (Q1,
 Q2, …). Keep IDs already used in the thread, the conversation, or existing branch names, and
-never reuse one; number new ones after the highest. Each item has a one-line statement and a
+never reuse one; number new ones after the highest. In a posted comment, prefix IDs with the
+poster's GitHub login (`zcorpan-Q3`), so comments from parallel runs can't collide; refer to
+other comments' items by their full ID. Each item has a one-line statement and a
 state:
 
 - *open* (a question) or *proposed* (a defect with a proposed fix not yet applied);
