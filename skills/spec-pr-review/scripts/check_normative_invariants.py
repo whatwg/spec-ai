@@ -34,8 +34,8 @@ ID = re.compile(r"\sid=(?:\"([^\"]*)\"|'([^']*)'|([^\s>]+))")
 KEYWORDS = re.compile(r"\b(must not|must|should not|should|may not|may|shall not|shall)\b",
                       re.I)
 EXCEPTION = re.compile(r"\b(?:[A-Z]\w*Error|DOMException)\b|\b(?:re)?throws?\b")
-EVENT_FIRE = re.compile(r"\bfire (?:a|an) (?:[\w-]+ )*?event(?:=\])? named \"?(?:\{\{)?"
-                        r"([\w:-]+)", re.I)
+EVENT_FIRE = re.compile(r"\bfir(?:e|es|ing) (?:a|an) (?:[\w-]+ )*?event(?:=\])? named \"?"
+                        r"(?:\{\{)?(?:[\w-]+/)?([\w:-]+)", re.I)
 EVENT_REF = re.compile(r"data-x=\"(event-[^\"]+)\"")
 NON_NORMATIVE = re.compile(
     r"<(p|div|dl|aside)\b[^>]*\bclass=(?:\"[^\"]*\b(?:note|example|XXX|warning|domintro)\b"
