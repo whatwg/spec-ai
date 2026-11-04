@@ -16,7 +16,8 @@ Test pass conditions and coverage belong to the design phase.
 
 ## Baseline
 
-- B: the working branch heads (spec and wpt) at the start of this phase.
+- B: the working branch heads (each spec checkout and wpt) at the start of this phase. Run the
+  spec checks below in each spec checkout the phase changes.
 - Run the changed test files at B with `--log-wptreport`, in a browser that implements the
   feature and in one that doesn't, where they exist.
 
