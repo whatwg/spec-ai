@@ -58,7 +58,15 @@ evidence (a prototype or test shows it breaks something), as a new question that
 unrecorded decision may be questioned for a substantive problem; say it may already have been
 decided.
 
-The last design review is the latest of: a design review in this conversation, a posted design
+At the end of every run, save the ledger, with "Reviewed at <sha>" for the spec and wpt heads and
+the working branch's name, as a local git note on the working branch head: `git notes
+--ref=spec-pr-review add -f -F <file> HEAD`. Read it back from the newest annotated commit on the
+branch (`git log --notes=spec-pr-review`), or after a force-push, from `git notes
+--ref=spec-pr-review list` matched by branch name. Never push the notes ref. A noted decision
+made in chat is still unrecorded for reviewers, but isn't lost between sessions.
+
+The last design review is the latest of: a noted design review, a design review in this
+conversation, a posted design
 comment (its "Reviewed at <sha>" line), a deciders' approval of the design, or the fork point of
 existing `-proposed` and `-q*` branches.
 
