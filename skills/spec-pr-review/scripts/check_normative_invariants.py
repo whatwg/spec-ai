@@ -28,6 +28,8 @@ BIKESHED_IDL = re.compile(
     r"(.*?)</\1>", re.S)
 IDL_DEFINITION = re.compile(r"\b(?:interface(?: mixin)?|dictionary|enum|namespace|callback)\s+"
                             r"(\w+)")
+BIKESHED_LINK_BLOCK = re.compile(
+    r"<pre\b[^>]*\bclass=[\"']?(anchors|link-defaults)\b[^>]*>(.*?)</pre>", re.S)
 TAG = re.compile(r"<[^>]*>")
 DFN = re.compile(r"<dfn\b([^>]*)>(.*?)</dfn>", re.S)
 ATTR = re.compile(r"([\w-]+)(?:\s*=\s*(\"[^\"]*\"|'[^']*'|[^\s>]+))?")
@@ -172,6 +174,9 @@ def extract(src):
         "dfns": dfn_keys,
         "exported dfns": exported,
         "external terms (data-x-href)": external,
+        "Bikeshed anchors and link defaults": Counter(
+            f"{kind}: {squash(line)}" for kind, block in BIKESHED_LINK_BLOCK.findall(src)
+            for line in block.splitlines() if squash(line)),
         "ids": ids(src),
         "RFC 2119 keywords (normative text)": Counter(
             k.lower() for k in KEYWORDS.findall(normative_text)),
