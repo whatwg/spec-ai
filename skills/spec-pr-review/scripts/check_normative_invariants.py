@@ -32,6 +32,7 @@ TAG = re.compile(r"<[^>]*>")
 DFN = re.compile(r"<dfn\b([^>]*)>(.*?)</dfn>", re.S)
 ATTR = re.compile(r"([\w-]+)(?:\s*=\s*(\"[^\"]*\"|'[^']*'|[^\s>]+))?")
 ID = re.compile(r"\sid=(?:\"([^\"]*)\"|'([^']*)'|([^\s>]+))")
+START_TAG = re.compile(r"<[a-zA-Z][^>]*>")
 KEYWORDS = re.compile(r"\b(must not|must|should not|should|may not|may|shall not|shall)\b",
                       re.I)
 EXCEPTION = re.compile(r"\b(?:[A-Z]\w*Error|DOMException)\b|\b(?:re)?throws?\b")
@@ -54,7 +55,8 @@ BYTE_LITERAL = re.compile(r"`<code\b[^>]*>(.*?)</code>`", re.S)
 
 def git_show(rev, path):
     """Return the file at rev, or None if rev exists but the file doesn't. Fail otherwise."""
-    result = subprocess.run(["git", "show", f"{rev}:{path}"], capture_output=True, text=True)
+    result = subprocess.run(["git", "show", f"{rev}:{path}"], capture_output=True, text=True,
+                            errors="replace")
     if result.returncode == 0:
         return result.stdout
     if subprocess.run(["git", "rev-parse", "--verify", "--quiet", f"{rev}^{{commit}}"],
@@ -64,9 +66,16 @@ def git_show(rev, path):
 
 
 def changed_spec_files(base, head):
-    out = subprocess.run(["git", "diff", "--name-only", base, head], capture_output=True,
+    """(old path, new path) for each changed spec file, following renames."""
+    out = subprocess.run(["git", "diff", "--name-status", "-M", base, head], capture_output=True,
                          text=True, check=True).stdout
-    return [p for p in out.splitlines() if SPEC_FILE.search(p)]
+    pairs = []
+    for line in out.splitlines():
+        status, *paths = line.split("\t")
+        old, new = (paths[0], paths[-1])
+        if SPEC_FILE.search(old) or SPEC_FILE.search(new):
+            pairs.append((old, new))
+    return pairs
 
 
 def squash(text):
@@ -147,7 +156,9 @@ def dfns(src):
 
 
 def ids(src):
-    return Counter(next(g for g in m.groups() if g is not None) for m in ID.finditer(src))
+    """ids on real start tags, so escaped markup in examples doesn't count."""
+    return Counter(next(g for g in m.groups() if g is not None)
+                   for tag in START_TAG.finditer(src) for m in ID.finditer(tag.group()))
 
 
 def extract(src):
@@ -168,8 +179,8 @@ def extract(src):
         "fired events": Counter(EVENT_FIRE.findall(text)),
         "event references": Counter(EVENT_REF.findall(body)),
         "quoted string literals": Counter(
-            plain(a or b or c) for a, b, c in LITERAL.findall(body)
-            if not re.fullmatch(r"\w*Error", plain(a or b or c))),
+            lit for a, b, c in LITERAL.findall(body)
+            if not re.fullmatch(r"\w*Error", lit := re.sub(r"!!\w+$", "", plain(a or b or c)))),
         "byte-sequence literals": Counter(plain(m) for m in BYTE_LITERAL.findall(body)),
     }
 
@@ -188,13 +199,13 @@ def show(items, limit=40):
 
 
 def check_spec(args):
-    files = args.files or changed_spec_files(args.base, args.head)
-    if not files:
+    pairs = [(p, p) for p in args.files] or changed_spec_files(args.base, args.head)
+    if not pairs:
         print("No spec files changed.")
         return 0
     found = False
-    for path in files:
-        old, new = git_show(args.base, path), git_show(args.head, path)
+    for old_path, path in pairs:
+        old, new = git_show(args.base, old_path), git_show(args.head, path)
         if old is None and new is None:
             sys.exit(f"error: {path} exists in neither revision (paths are relative to the repo "
                      "root)")
@@ -202,6 +213,8 @@ def check_spec(args):
             print(f"{path}: only in {args.head if old is None else args.base}")
             found = True
             continue
+        if old_path != path:
+            print(f"{old_path} -> {path} (renamed)")
         before, after = extract(old), extract(new)
         report = []
         for category in before:
