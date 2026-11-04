@@ -48,6 +48,7 @@ P_END = re.compile(r"</p\s*>|(?=<(?:p|div|ol|ul|dl|pre|table|h\d|xmp)\b|</(?:div
 BIKESHED_NOTE = re.compile(r"(?:^|(?<=\n\n)|(?<=<p>))[ \t]*(?:<p>)?\s*Note[:,].*?"
                            r"(?=</p\s*>|\n[ \t]*\n|$)", re.S)
 LITERAL = re.compile(r"\"<code\b[^>]*>(.*?)</code>\"|\"\{\{([^}]*)\}\}\"|\"`([^`]*)`\"", re.S)
+BYTE_LITERAL = re.compile(r"`<code\b[^>]*>(.*?)</code>`", re.S)
 
 
 def git_show(rev, path):
@@ -168,6 +169,7 @@ def extract(src):
         "quoted string literals": Counter(
             plain(a or b or c) for a, b, c in LITERAL.findall(body)
             if not re.fullmatch(r"\w*Error", plain(a or b or c))),
+        "byte-sequence literals": Counter(plain(m) for m in BYTE_LITERAL.findall(body)),
     }
 
 
