@@ -128,6 +128,10 @@ Ask before pushing or posting anything, unless the prompt already said to.
   branches) goes in a `<details>` below. Address the people on the PR and ask; don't instruct the
   author. No editorial findings, summaries, or praise. If the user hasn't read the comment before
   it's posted, label it as written by AI.
+- **Before posting a design comment**, fetch the thread again. If design items were posted since
+  you gathered state, number your new items after the highest ID there, and cite rather than
+  repeat items it already raises. After posting, check again; if an ID collides, edit your
+  comment to renumber yours.
 - **Editorial fixes** get no comment; their commit messages say what they fix.
 - Right before pushing, confirm each target branch is still at the commit you built on, then
   push as a fast-forward. Never force-push. If a branch moved, push and post nothing, and tell
