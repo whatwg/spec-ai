@@ -4,9 +4,10 @@
   spec BASE HEAD [FILE...]   Compare spec sources (Wattsi `source`, Bikeshed `.bs`) between two
                              git revisions, in the current directory's repo. Without FILEs,
                              checks the spec files changed between BASE and HEAD.
-  wpt BEFORE.json AFTER.json [--rename 'OLD => NEW']...
+  wpt BEFORE.json AFTER.json [--rename '[TEST | ]OLD => NEW']...
                              Compare two `./wpt run --log-wptreport` results per subtest,
-                             after applying test path and subtest name renames.
+                             after renaming test paths (with any variants), or subtests of
+                             TEST (the old test ID).
 
 Exits 1 if anything differs. Differences are leads for review, not proof of a normative change.
 """
@@ -221,40 +222,59 @@ def check_spec(args):
 
 
 def load_wptreport(path):
+    """Map (subsuite, test, subtest or None) to the sorted statuses of every run of it."""
     with open(path) as f:
         data = json.load(f)
     results = {}
     for test in data.get("results", []):
-        results[(test["test"], None)] = test.get("status")
+        suite = test.get("subsuite", "")
+        results.setdefault((suite, test["test"], None), []).append(test.get("status"))
         for sub in test.get("subtests", []):
-            results[(test["test"], sub["name"])] = sub.get("status")
-    return results
+            results.setdefault((suite, test["test"], sub["name"]), []).append(sub.get("status"))
+    if not results:
+        sys.exit(f"error: {path} has no results")
+    return {k: sorted(v) for k, v in results.items()}
 
 
-def renamed(results, renames):
-    """Apply OLD => NEW renames of test paths or subtest names to the before results."""
+def parse_renames(specs):
+    """'OLD => NEW' renames a test path (variants and all); 'TEST | OLD => NEW' a subtest."""
+    paths, subtests = {}, {}
+    for spec in specs:
+        lhs, sep, new = spec.partition(" => ")
+        if not sep:
+            sys.exit(f"error: --rename expects 'OLD => NEW' or 'TEST | OLD => NEW', got {spec!r}")
+        test, bar, old = lhs.partition(" | ")
+        if bar:
+            subtests[(test, old)] = new
+        else:
+            paths[lhs] = new
+    return paths, subtests
+
+
+def renamed(results, paths, subtests):
     out = {}
-    for (test, sub), status in results.items():
-        test = renames.get(test, test)
-        out[(test, renames.get(sub, sub) if sub is not None else None)] = status
+    for (suite, test, sub), statuses in results.items():
+        if sub is not None:
+            sub = subtests.get((test, sub), sub)
+        path, q, variant = test.partition("?")
+        test = paths.get(path, path) + q + variant
+        key = (suite, test, sub)
+        if key in out:
+            sys.exit(f"error: renames map two results onto {test}" + (f" | {sub}" if sub else ""))
+        out[key] = statuses
     return out
 
 
 def check_wpt(args):
-    renames = {}
-    for r in args.rename:
-        old, sep, new = r.partition(" => ")
-        if not sep:
-            sys.exit(f"error: --rename expects 'OLD => NEW', got {r!r}")
-        renames[old] = new
-    before = renamed(load_wptreport(args.before), renames)
+    before = renamed(load_wptreport(args.before), *parse_renames(args.rename))
     after = load_wptreport(args.after)
     diffs = []
-    for key in sorted(before.keys() | after.keys(), key=lambda k: (k[0], k[1] or "")):
-        old, new = before.get(key, "(absent)"), after.get(key, "(absent)")
+    for key in sorted(before.keys() | after.keys(), key=lambda k: (k[0], k[1], k[2] or "")):
+        old, new = before.get(key, ["(absent)"]), after.get(key, ["(absent)"])
         if old != new:
-            test, sub = key
-            diffs.append(f"  {test}" + (f" | {sub}" if sub else "") + f": {old} -> {new}")
+            suite, test, sub = key
+            diffs.append(f"  {suite + ': ' if suite else ''}{test}" + (f" | {sub}" if sub else "")
+                         + f": {', '.join(old)} -> {', '.join(new)}")
     if diffs:
         print("Result differences:")
         print("\n".join(diffs))
@@ -274,8 +294,8 @@ def main():
     wpt = sub.add_parser("wpt", help="compare two wptreport JSON files")
     wpt.add_argument("before")
     wpt.add_argument("after")
-    wpt.add_argument("--rename", action="append", default=[], metavar="'OLD => NEW'",
-                     help="map a renamed test path or subtest name (repeatable)")
+    wpt.add_argument("--rename", action="append", default=[], metavar="'[TEST | ]OLD => NEW'",
+                     help="map a renamed test path, or a subtest of TEST (repeatable)")
     args = parser.parse_args()
     return check_spec(args) if args.command == "spec" else check_wpt(args)
 
