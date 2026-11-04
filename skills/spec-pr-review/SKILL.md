@@ -130,8 +130,9 @@ Ask before pushing or posting anything, unless the prompt already said to.
   it's posted, label it as written by AI.
 - **Before posting a design comment**, fetch the thread again. If design items were posted since
   you gathered state, number your new items after the highest ID there, and cite rather than
-  repeat items it already raises. After posting, check again; if an ID collides, edit your
-  comment to renumber yours.
+  repeat items it already raises. After posting, check again; if an ID collides with a comment
+  posted before yours, edit yours to renumber. Only the later comment renumbers, so two runs
+  don't both edit.
 - **Editorial fixes** get no comment; their commit messages say what they fix.
 - Right before pushing, confirm each target branch is still at the commit you built on, then
   push as a fast-forward. Never force-push. If a branch moved, push and post nothing, and tell
