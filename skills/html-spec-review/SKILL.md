@@ -15,6 +15,11 @@ House-style rules (markup, `<dfn>`s, preambles, IDL member prose, tasks/events, 
 
 Refer to this skill when authoring spec text, reviewing pull requests, or conducting rigorous self-reviews to prevent common failure modes that pass automated syntax checks (Wattsi/Bikeshed) but introduce critical logical, security, or architectural regressions.
 
+**Phase map** (for `spec-pr-review`, and for reviewing behavior before style):
+- *Design phase* (behavior, normative, test correctness): §2.5, §§3–6, the logic-bug items in §12.2, §13, §14, `check_wpt_coverage.py`, and the checklist groups on companion PRs, WPT coverage, algorithmic correctness, parser, and call sites.
+- *Editorial phase* (wording, markup, style): §1, §§2.1–2.4, §§2.6–2.8, §§7–11, §12 except its logic-bug items, [`html-style-guide.md`](html-style-guide.md), `check_webidl.py`, `check_algorithms.py`, and the checklist groups on Web IDL, prose and markup, house style, and domintro.
+- An editorial-looking rule that changes behavior when broken (e.g. an unbound variable with more than one plausible reading, §13.3) is a design finding.
+
 ### Working with `whatwg/html`'s `source` File (`split_html.py`)
 
 `whatwg/html`'s `source` file is over 160,000 lines, so reading or editing it whole is slow and error-prone. Before examining or editing `source`, use `scripts/split_html.py` (bundled in this skill directory) to split `source` at each `<h2` tag into `split_source/` (`00_start.html`, `01_introduction.html`, etc.):

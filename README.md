@@ -12,7 +12,9 @@ AI tooling and agent skills for working with WHATWG standards.
 
   Also includes [`html-style-guide.md`](skills/html-spec-review/html-style-guide.md), a de-facto house style guide for the HTML Standard's `source` with stable rule IDs, spec examples, and Modern/Accepted/Legacy/Obsolete rankings where the spec uses competing styles.
 
-- **[`review-and-fix`](skills/review-and-fix/SKILL.md)**: Workflow for reviewing a WHATWG spec PR together with its [web-platform-tests](https://github.com/web-platform-tests/wpt) PR, then fixing the findings on the PR branches. Review (including running the tests in browsers that do and don't implement the feature), one commit per finding, and self-review are repeated in rounds (at most ten) until a full round finds only nits or a round raises a new open question, then, after asking unless told to, pushing and posting a findings-and-fixes comment.
+- **[`spec-pr-review`](skills/spec-pr-review/SKILL.md)**: Reviews a WHATWG spec change (a PR, or a local branch before a PR exists) together with its [web-platform-tests](https://github.com/web-platform-tests/wpt) changes, in two phases. It works out the phase from the PR thread, commit messages, and conversation, and doesn't reopen recorded decisions.
+  - [Design phase](skills/spec-pr-review/design.md): one focused pass over behavior, normative text, and test correctness. Design questions get options prototyped as commits, for humans to decide.
+  - [Editorial phase](skills/spec-pr-review/editorial.md): once the design is settled, a bounded editorial review and fix loop, verified not to change normative behavior. `scripts/check_normative_invariants.py` compares IDL, dfns, ids, RFC 2119 keywords, exceptions, events, and string literals between revisions, and wpt results per subtest.
 
 ## Usage
 
