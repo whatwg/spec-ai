@@ -67,7 +67,7 @@ test, and drop what you can't. Merge findings that share a root cause (`html-spe
 
 ## 6. Briefing
 
-Report in chat, then stop:
+Report in chat:
 
 - the phase, its scope, and "Reviewed at <short sha>" for the spec and wpt heads;
 - the behavior delta list, briefly;
@@ -76,9 +76,10 @@ Report in chat, then stop:
   and what prototyping revealed;
 - the ledger's decided, declined, and deferred items, with where each decision is recorded, or
   "unrecorded";
-- "Editorial review deferred until the design is settled."
+- if items are open or proposed, "Editorial review deferred until the design is settled."
 
-If there's a PR, offer to post a design comment (see `SKILL.md`).
+If items are open or proposed, stop, and if there's a PR, offer to post a design comment (see
+`SKILL.md`). Otherwise continue as `SKILL.md` says.
 
 ## 7. Applying decisions
 
