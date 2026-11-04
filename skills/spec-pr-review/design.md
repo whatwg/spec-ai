@@ -51,6 +51,9 @@ test, and drop what you can't. Merge findings that share a root cause (`html-spe
 
 ## 5. Classify and prototype
 
+Start each proposal and prototype commit message with its item ID (e.g. `D2: …`, `Q1 option B:
+…`), so later runs can tell which items they belong to.
+
 - **Defect** (D<N>): wrong behavior with one sensible fix, because the intent is clear and only
   one behavior fits it. Write the fix, with its tests, as one commit per defect on
   `<working branch>-proposed`, so each can be applied on its own.

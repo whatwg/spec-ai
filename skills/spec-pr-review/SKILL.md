@@ -23,7 +23,8 @@ Works with or without a PR. Use what exists:
 
 - the spec and wpt branches (local, or the PR heads, fetched as in `html-spec-review` §13.0),
   their commit messages, and the base each forks from;
-- existing `-proposed` and `-q<N>-<letter>` branches from earlier runs;
+- existing `-proposed` and `-q<N>-<letter>` branches from earlier runs, and the item IDs in
+  their commit messages;
 - for a PR: its description, linked issues, companion PRs in other specs, and all comments and
   review threads;
 - this conversation.
@@ -47,6 +48,10 @@ state:
 Deciders are the PR author, the spec's editors, and the user for their own change. Others'
 preferences are input, not decisions. If a reply is ambiguous, the item stays open. A human
 reviewer's normative concern in an unresolved review thread is an open question too.
+
+An item whose proposal or prototype commit is already on the working branch (`git cherry`, which
+matches by patch) is decided, unrecorded unless its commit message explains the choice. Ask the
+user about leftover items whose state you can't infer, rather than marking them open.
 
 Recorded decisions are settled; give them to every reviewer as such. Revisit one only with new
 evidence (a prototype or test shows it breaks something), as a new question that cites it. An
