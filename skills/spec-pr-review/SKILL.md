@@ -64,7 +64,9 @@ Run the design phase if any of these hold:
 
 - the change has had no design review;
 - commits since the last design review change normative text or test expectations: review only
-  those commits, plus the open items;
+  those commits, plus the open items. If the last reviewed commit isn't an ancestor of the head
+  (a force-push), scope with `git range-diff` from it to the head, or review everything if that
+  isn't clear;
 - an item is open or proposed;
 - an item is decided but not applied: apply it as in `design.md` §7, asking before you commit;
 - you're unsure about any of the above: scope the design phase to what's unclear.

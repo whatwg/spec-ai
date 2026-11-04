@@ -85,7 +85,9 @@ If there's a PR, offer to post a design comment (see `SKILL.md`).
 When a decider decides:
 
 - Cherry-pick the chosen prototype or proposed fix, with its tests, onto the working branch,
-  offer to explain the choice in the commit message, and update the ledger.
+  offer to explain the choice in the commit message, and update the ledger. If the cherry-pick
+  conflicts, abort it and redo the prototype on the current working branch, or ask the user;
+  don't resolve normative text by hand.
 - Have one fresh agent check the applied commits against the delta list, and rerun the affected
   tests. Fix problems in your own commits with fixups; anything that needs a decision is a new
   item.
