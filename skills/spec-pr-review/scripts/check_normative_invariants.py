@@ -25,6 +25,8 @@ WATTSI_IDL = re.compile(r'<pre><code class="?idl"?[^>]*>(.*?)</code></pre>', re.
 BIKESHED_IDL = re.compile(
     r"<(pre|xmp)\b[^>]*\bclass=(?:\"[^\"]*\bidl\b[^\"]*\"|'[^']*\bidl\b[^']*'|idl\b)[^>]*>"
     r"(.*?)</\1>", re.S)
+IDL_DEFINITION = re.compile(r"\b(?:interface(?: mixin)?|dictionary|enum|namespace|callback)\s+"
+                            r"(\w+)")
 TAG = re.compile(r"<[^>]*>")
 DFN = re.compile(r"<dfn\b([^>]*)>(.*?)</dfn>", re.S)
 ATTR = re.compile(r"([\w-]+)(?:\s*=\s*(\"[^\"]*\"|'[^']*'|[^\s>]+))?")
@@ -104,14 +106,22 @@ def without_non_normative(src):
 
 
 def idl_statements(src):
+    """IDL statements, with members keyed by their enclosing definition's name."""
     stmts = Counter()
     for block in idl_blocks(src):
         text = html.unescape(TAG.sub("", block))
         text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
         text = re.sub(r"//[^\n]*", "", text)
-        for stmt in re.split(r"[;{}]", text):
-            if squash(stmt):
-                stmts[squash(stmt)] += 1
+        names = []
+        for stmt, delim in re.findall(r"([^;{}]*)([;{}]|$)", text):
+            stmt = squash(stmt)
+            if delim == "{":
+                m = IDL_DEFINITION.search(stmt)
+                names.append(m.group(1) if m else stmt)
+            if stmt:
+                stmts[f"{names[-1]}: {stmt}" if names and delim != "{" else stmt] += 1
+            if delim == "}" and names:
+                names.pop()
     return stmts
 
 
