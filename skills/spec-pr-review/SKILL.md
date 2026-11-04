@@ -46,8 +46,10 @@ state:
 - *declined* or *deferred* (with a link to the follow-up issue).
 
 Deciders are the PR author, the spec's editors, and the user for their own change. Others'
-preferences are input, not decisions. If a reply is ambiguous, the item stays open. A human
-reviewer's normative concern in an unresolved review thread is an open question too.
+preferences are input, not decisions. If a reply is ambiguous, or deciders disagree, the item
+stays open. Any human's normative concern, in a review thread or a comment, is an open question
+until a decider answers it, whether or not its thread is resolved; drop it if it no longer
+applies at the head.
 
 Recorded decisions are settled; give them to every reviewer as such. Revisit one only with new
 evidence (a prototype or test shows it breaks something), as a new question that cites it. An
