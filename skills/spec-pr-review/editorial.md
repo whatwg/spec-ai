@@ -46,7 +46,7 @@ At most 3. Each round:
 
 Anything normative that a reviewer or a check turns up (including a real problem a reverted
 change exposed) isn't fixed here. Verify it, then add it to the ledger as a defect or question,
-as in `design.md` §5.
+without proposal or prototype branches; the next design phase makes those.
 
 Stop when a round finds nothing to fix, or after the third round; then say if it didn't
 converge.
