@@ -123,7 +123,8 @@ Start by saying in one line which phase you're running and why.
 
 ## Pushing and posting
 
-Ask before pushing or posting anything, unless the prompt already said to.
+Ask before pushing or posting anything, unless the user's current request says to. An approval
+covers the branches and comments it was given for, not ones created after it.
 
 - **Commits for someone else's PR**, design or editorial: push them to the PR branch only if the
   user is an editor who says to; otherwise offer to open them as a separate PR.
