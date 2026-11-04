@@ -81,7 +81,9 @@ Start by saying in one line which phase you're running and why.
 ## Branches
 
 - The working branch is the change's own branch when the user is its author, before or after
-  there's a PR. For someone else's PR, use a local branch named after the PR branch with a
+  there's a PR. Once there's a PR, compare it with the remote PR head first: fast-forward it if
+  it's behind, and ask the user if they diverged. For someone else's PR, use a local branch
+  named after the PR branch with a
   `-fixes` suffix (adding your branch prefix if the PR branch lacks it), since a local branch
   with the PR's name may hold unrelated unpushed commits. Create it from the remote PR head if it
   doesn't exist. If it exists:
