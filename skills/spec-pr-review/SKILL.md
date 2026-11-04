@@ -31,6 +31,10 @@ Works with or without a PR. Use what exists:
 If the wpt change isn't given, look for it (the PR description, a branch with the same name in
 the local wpt checkout). A normative change without tests is a design finding.
 
+A change spanning several specs (e.g. HTML and a DOM companion) gets one run per spec PR, each
+with its own ledger and thread; the other spec PRs are context. Read their ledgers, and don't
+raise an item there that's already open in another one.
+
 ## Ledger
 
 Rebuild it on every run. It lists design items: defects (D1, D2, …) and design questions (Q1,
@@ -89,8 +93,9 @@ Start by saying in one line which phase you're running and why.
     stops, abort it and ask the user;
   - with no unpushed commits, fast-forward it to the remote PR head;
   - otherwise, ask the user.
-- Proposal and prototype branches (see `design.md`) start from the working branch, and the wpt
-  counterpart gets the same name. If a branch name is taken, add a numeric suffix.
+- Proposal and prototype branches (see `design.md`) start from the working branch, and get the
+  same name in every affected checkout (wpt, and other specs an option touches). If a branch name
+  is taken, add a numeric suffix.
 - If a checkout has uncommitted changes to tracked files when you start or before you switch
   it, ask the user. Never reset or delete an existing branch, except as below.
 - At the end of every run, pushed or not, switch each checkout back to what it had checked out
@@ -117,7 +122,7 @@ Start by saying in one line which phase you're running and why.
 Ask before pushing or posting anything, unless the prompt already said to.
 
 - **Commits for someone else's PR**, design or editorial: push them to the PR branch only if the
-  user is an editor who says to; otherwise offer to open them as a separate PR.
+  user is an editor of that spec who says to; otherwise offer to open them as a separate PR.
 - **Proposal and prototype branches**: push them only if the user agrees, to a repo they can push
   to.
 - **Design comment**, once there's a PR: if the user is the PR author, settle what you can with
