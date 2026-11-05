@@ -116,6 +116,11 @@ Start by saying in one line which phase you're running and why.
   it, ask the user. Never reset or delete an existing branch, except as below.
 - At the end of every run, pushed or not, switch each checkout back to what it had checked out
   when you started.
+- Keep proposal, prototype, and `-fixes` branches until the PR is merged or closed, so decisions
+  can still be checked and reopened. At the start of every run, look in each checkout for such
+  branches whose PR is merged or closed (or, with no PR, whose working branch was merged or
+  deleted), and offer to delete them and their pushed copies. Delete a branch only if `git log
+  <its working branch or PR head>..<branch>` shows nothing but your own commits.
 - Fix problems in your own unpushed commits with `git commit --fixup`. Before reporting, note
   `HEAD`'s commit ID and run `git rebase --autosquash <the commit you built on>` (Git 2.44 or
   later). If it stops for any reason, abort it, keep the unsquashed commits, and tell the user.
