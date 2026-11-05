@@ -145,8 +145,8 @@ covers the branches and comments it was given for, not ones created after it.
 
 - **Commits for someone else's PR**, design or editorial: push them to the PR branch only if the
   user is an editor who says to; otherwise offer to open them as a separate PR.
-- **Proposal and prototype branches**: push them only if the user agrees, to a repo they can push
-  to.
+- **Proposal and prototype branches**: push them only if the user agrees, to the user's fork,
+  never to the spec's or wpt's own repo.
 - **Design comment**, once there's a PR: if the user is the PR author, settle what you can with
   them in chat first. Start with "Reviewed at <short sha>" (the spec and wpt heads). Put each
   open or proposed item in the comment body, outside any `<details>`, so the thread can be
