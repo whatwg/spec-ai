@@ -101,6 +101,37 @@ Report in chat. This is for the user; a posted comment is much shorter
   given while items weren't applied ([`state.md`](state.md) §Last design review).
 - The "Not this change's" list.
 - If anything is open: "Editorial review deferred until the design is settled."
+- If §7's conditions hold, offer a redesign.
 
 Then continue with the flow in [`SKILL.md`](SKILL.md): with items to decide, end the briefing
 with the decision prompt ([`decisions.md`](decisions.md)).
+
+## 7. Redesign
+
+Offer one when many items trace to the same structure, when fixes keep adding special cases
+across algorithms, or when a decider asks. It costs a lot, so run it only when the user agrees.
+A redesign is a prototype for a question ("restructure the change?"), never a replacement.
+
+1. **Brief.** Write it yourself from what you verified; don't include the change's spec text, the
+   PR description, or the thread. It has:
+   - the intent and the behavior delta list (§2), and the decided items, as constraints;
+   - every problem found so far, by you or in the thread, fixed or not, as a must-pass case: the
+     input, the required outcome, how the fix works, and the nearby cases it was settled to
+     cover. An outcome alone isn't enough: a redesign that knows only "fixed" reintroduces the
+     nearby cases;
+   - the change's test files, as data.
+2. **Rewrite.** A fresh agent rewrites the change from the brief, on a `q<N>-<letter>` branch
+   in a clone that holds only the base, so it can't see the change (`git clone --shared
+   --single-branch -b <base branch>`, then reset to the base commit; [`git.md`](git.md)
+   §Checkouts). For HTML, give it `html-spec-review`.
+3. **Compare.** A fresh agent gets the base, both versions, and the brief's cases. It traces
+   every case and delta in both, and hunts for inputs where they differ. It reports what each
+   adds (state, hunks, existing text rewritten, checks spread across call sites), and the
+   regressions on each side. Run the tests on both where the feature is implemented. Verify
+   every claim yourself (§4).
+4. **Classify.**
+   - Regressions in the redesign go in what prototyping revealed (§5).
+   - Problems it shows in the change are new items.
+   - Each piece the redesign does better becomes its own question, with a prototype that ports it
+     into the change, so deciders can take pieces.
+   - Offer the whole redesign as an option only if none of its regressions are left unfixed.
