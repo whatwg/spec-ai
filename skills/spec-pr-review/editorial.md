@@ -5,13 +5,13 @@ change: anything that might be one goes to the ledger, not into a commit.
 
 ## Scope
 
-- Text the change touches (`html-spec-review` §12.1, and §12.2 except its logic-bug items).
+- Text the change touches.
 - Non-normative text anywhere that the change makes stale: introductions, notes, domintro,
-  examples, and cross-references that still describe the old behavior (`html-spec-review`
-  §13.5). Updating it to match the change is editorial.
+  examples, and cross-references that still describe the old behavior. Updating it to match the
+  change is editorial.
 - Editorial concerns from the thread ([`state.md`](state.md) §Human concerns).
-- Spec style: the repo's own conventions; for whatwg/html, the editorial sections in
-  `html-spec-review`'s phase map and its `html-style-guide.md`.
+- Spec style: the repo's own conventions; for whatwg/html, `html-spec-review`'s `[editorial]`
+  rules and its `html-style-guide.md`.
 - wpt: `./wpt lint`, the style items in wpt's `docs/reviewing-tests/checklist.md`, consistency
   with nearby tests, and test and file names.
 

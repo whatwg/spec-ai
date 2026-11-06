@@ -41,7 +41,8 @@ design first, editorial once the design is settled.
 - [`git.md`](git.md): before creating branches or commits, and at the end of every run.
 - [`posting.md`](posting.md): before any push, comment, or remote change.
 - [`groups.md`](groups.md): when the PR is part of a stack or group (see `state.md`).
-- For HTML spec text, `html-spec-review`; its phase map says which sections serve which phase.
+- For HTML spec text, `html-spec-review`; its `[design]` and `[editorial]` tags say which rules
+  each phase checks.
 
 ## Flow
 

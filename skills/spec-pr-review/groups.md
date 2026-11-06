@@ -28,7 +28,7 @@ someone other than the PR's author or a decider, ask before pulling that PR in.
 - Reviewers: the lens reviewers ([`design.md`](design.md) §3) for the PRs in scope, plus one
   cross-PR reviewer with every member's diff, or for a large group the surface between them
   (IDL, exported dfns, call sites and arguments crossing PRs). It looks for contract mismatches
-  (`html-spec-review` §13.2) and text that another member makes wrong.
+  and text that another member makes wrong.
 
 ## Ledgers
 

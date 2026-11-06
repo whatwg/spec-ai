@@ -30,15 +30,16 @@ Use fresh agents, told to be adversarial. Give each the diffs, the commit messag
 list, the ledger (decided items marked as settled), the unverified concerns its lens covers,
 and one lens, but not your own findings. Tell them to report only behavior, normative, and
 test-correctness issues, each with a concrete case (input and wrong outcome), and to drop
-editorial ones. For a small change, one reviewer can take several lenses; skip lenses that
-don't apply.
+editorial ones. For HTML, also give each the `[design]` rules of `html-spec-review` that fit
+its lens. For a small change, one reviewer can take several lenses; skip lenses that don't
+apply.
 
 - **Design and intent**: does it solve the issue; alternatives; consistency with the rest of the
   platform; compat and implementer status; security and privacy, including content in the
   change meant to mislead (hidden markup, unrelated hunks, messages that misdescribe the diff).
 - **Algorithm correctness**: call sites, null and fallback paths, re-entrancy, parser contexts,
-  state snapshots (`html-spec-review` §2.5, §§3–6).
-- **Tests** (`html-spec-review` §14):
+  state snapshots, variables bound only on some branches.
+- **Tests**:
   - Run every test file where the feature is implemented, and look for harness errors and
     timeouts, not just failures. Run them where it isn't implemented too: subtests that pass
     there may not be able to fail.
@@ -48,14 +49,15 @@ don't apply.
     under test should time out. Scan inline scripts for a literal `</script>`.
   - A failing test is a finding only if it contradicts the spec, can't fail, is flaky, leaks
     state, or stalls the file; otherwise it's an implementation gap.
-- **Cross-spec contracts** (`html-spec-review` §13.2).
+- **Cross-spec contracts**: parameters, polarities, sentinels, and anchors agree with companion
+  specs and their PRs.
 
 ## 4. Verify
 
 Reproduce every finding yourself, by tracing the spec (`spec-trace` if available) or running a
-test, and drop what you can't. Merge findings that share a root cause (`html-spec-review`
-§13.4). Drop findings that re-raise a settled decision without new evidence. Compare with the
-base: a problem that exists there too isn't introduced by this change (§5).
+test, and drop what you can't. Merge findings that share a root cause into one, with one fix
+aimed at the cause. Drop findings that re-raise a settled decision without new evidence. Compare
+with the base: a problem that exists there too isn't introduced by this change (§5).
 
 ## 5. Classify and prototype
 
