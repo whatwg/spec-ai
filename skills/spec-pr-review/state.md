@@ -48,15 +48,18 @@ same with or without a PR.
 
 ## Deciders
 
-- The PR author (by login), logins with write, maintain, or admin permission on the spec repo
-  (`gh api repos/<owner>/<repo>/collaborators/<login>/permission --jq .permission`; if you
-  can't check, ask the user), and the user for their own change before there's a PR.
+- The change's author (the user, for their own change, before and after there's a PR; otherwise
+  the PR author, by login) and the spec's editors: logins with write, maintain, or admin
+  permission on the spec repo (`gh api repos/<owner>/<repo>/collaborators/<login>/permission
+  --jq .permission`; if you can't check, ask the user).
 - For an item owned by a PR in another repo, that repo's deciders.
 - Anyone else's view is input. If the user isn't a decider, their choices say what to propose,
   not what's decided.
-- A decision by a PR author without write access to the spec repo is *unrecorded* until the
-  user or a decider with write access agrees, so reviewers may question it. The briefing names
-  who decided each item, and the user can reopen any decision.
+- When the user isn't the author, decisions by an author without write access are *unrecorded*
+  until an editor agrees, so reviewers may question them. In the author's own runs they count
+  as recorded.
+- The briefing names who decided each item. A decider can reopen any decision, as a new
+  question.
 - A decision is a decider's unambiguous choice of one outcome for an identified item. An
   ambiguous reply, a reply to an ID that collides, or deciders who disagree leave the item open;
   list each decider's position and never break the tie.
