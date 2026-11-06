@@ -15,6 +15,8 @@ House-style rules (markup, `<dfn>`s, preambles, IDL member prose, tasks/events, 
 
 Refer to this skill when authoring spec text, reviewing pull requests, or conducting rigorous self-reviews to prevent common failure modes that pass automated syntax checks (Wattsi/Bikeshed) but introduce critical logical, security, or architectural regressions.
 
+**Phase tags** (for `spec-pr-review`): headings and checklist items are tagged `[design]` (behavior, normative text, test correctness), `[editorial]` (wording, markup, style), or `[merge]` (PR description and landing, for the author and editors at merge time; mention drift in a review, not as a finding against the change). A tag covers everything under it unless a narrower tag overrides it, and untagged parts apply to both phases. Tag new sections when you add them. The tag says which phase checks the rule, not what a violation is: if fixing a violation could change what an implementation does or what a test checks (e.g. an unbound variable with more than one plausible reading), it's a design finding whatever the tag.
+
 ### Working with `whatwg/html`'s `source` File (`split_html.py`)
 
 `whatwg/html`'s `source` file is over 160,000 lines, so reading or editing it whole is slow and error-prone. Before examining or editing `source`, use `scripts/split_html.py` (bundled in this skill directory) to split `source` at each `<h2` tag into `split_source/` (`00_start.html`, `01_introduction.html`, etc.):
@@ -26,7 +28,7 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
 
 ---
 
-## 1. Web IDL Rules & Cross-References
+## 1. Web IDL Rules & Cross-References `[editorial]`
 
 ### 1.1. Cross-references inside `<pre><code class="idl">`
 - In Web IDL blocks (`<pre><code class="idl">`), cross-references MUST use `<span>`, NEVER `<code>`.
@@ -59,7 +61,7 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
 
 ## 2. Algorithms, Variable Lifecycle & Scope
 
-### 2.1. Variable Lifecycle: Strict "Let" vs. "Set"
+### 2.1. Variable Lifecycle: Strict "Let" vs. "Set" `[editorial]`
 - **First declaration**: MUST use **"Let `<var>x</var>` be `<var>y</var>`"**.
 - **Reassignment / Mutation**: MUST use **"Set `<var>x</var>` to `<var>y</var>`"**.
 - **Failure Modes to Catch**:
@@ -68,23 +70,23 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
   3. **Re-using a name for a different object**: a second `Let <var>x</var> be ...` for a different value in the same algorithm (even in exclusive branches) — rename one. A fresh `Let` inside a separate closure (fetch callback, queued task) is a new scope and is fine.
   - `Let <var>x</var> be null` before an `If/Otherwise` that assigns `<var>x</var>` in every branch is **not** a defect: variables declared inside a nested `<ol>` are not visible outside it, so hoisting with a null initial value is the required idiom (`VAR-LET-SET`).
 
-### 2.2. Dangling Antecedents & Variable Reassignment
+### 2.2. Dangling Antecedents & Variable Reassignment `[editorial]`
 - If a variable is mutated or reassigned, never refer to "the original `<var>x</var>`" in later steps unless explicitly preserved:
   - *Correct*: `Let <var>originalContext</var> be <var>context</var>.` ... `Set <var>context</var> to ...` ... `Use <var>originalContext</var>.`
   - *Incorrect*: Reassigning `<var>context</var>` and then later referring to "the original context".
 
-### 2.3. Algorithm Container & Scoping
+### 2.3. Algorithm Container & Scoping `[editorial]`
 - Wrap every algorithm in `<div algorithm>` (`ALG-PREAMBLE`). The preamble (name, arguments, return type) goes inside the `<div>`. Do not indent algorithm container contents (`SRC-INDENT-BLOCK`).
 - Multi-algorithm scopes can use `<div var-scope>`. If a variable is only referenced once, mark it `<var ignore>x</var>`.
 - Use the "initially" pattern (`STATE-DECLARATION`, `DFN-NO-FLAGS`): "...initially null", "...initially false", "...initially the empty list « »".
 
-### 2.4. Phrasing Conventions
+### 2.4. Phrasing Conventions `[editorial]`
 - Use standard Infra conjugation (`CALL-CONJUGATED`): `the result of <span data-x="...">getting the popcorn</span> given <var>args</var>` (not "the result of calling get the popcorn with...").
 - Assertions (`ALG-ASSERT`): `<span>Assert</span>: <var>x</var> is non-null.` (Always wrap in `<span>Assert</span>:`, never bare `Assert:`).
 - Loop control (`ALGO-LOOP-CONTROL-SPAN`): Always wrap `continue` and `break` in `<span>` (`<span>continue</span>`, `<span>break</span>`), never bare `continue` or `break`.
 - Context (`VAR-THIS`): `<span>this</span>` (never bare "this").
 
-### 2.5. Scope Leaks & Branch-Bound Variables (`ALGO-UNBOUND-VAR-OUTER-SCOPE`)
+### 2.5. Scope Leaks & Branch-Bound Variables (`ALGO-UNBOUND-VAR-OUTER-SCOPE`) `[design]`
 - **Blocker Bug**: Declaring a variable with `Let <var>x</var> be` inside a nested conditional sub-list (`<ol>`) and subsequently reading `<var>x</var>` at the outer algorithm scope or in an `Otherwise` branch.
   - On any execution path where the conditional branch does not run, `<var>x</var>` is completely unbound and dereferencing it creates an invalid specification state.
 - **Rule**:
@@ -101,26 +103,26 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
     <li><p>If <var>fetchTimingInfo</var> is not null:</p>...</li>
     ```
 
-### 2.6. Unused Variables & Argument Renaming (`ALGO-UNUSED-VAR`)
+### 2.6. Unused Variables & Argument Renaming (`ALGO-UNUSED-VAR`) `[editorial]`
 - Every variable introduced with `Let <var>x</var> be` must be referenced in subsequent steps.
 - **Refactoring Hazard**:
   - When refactoring algorithm signatures or renaming parameters (e.g., replacing `context` with `target`), authors frequently introduce the new parameter but leave dangling references to the old name or create dead intermediate bindings.
   - Always audit the entire algorithm to ensure the old variable name is not referenced and the new variable is actually consumed.
   - If a destructured tuple member or parameter is intentionally unused, mark it with `<var ignore>name</var>`.
 
-### 2.7. Infra List Iteration Syntax (`ALGO-LIST-OF`, `FLOW-FOR-EACH`)
+### 2.7. Infra List Iteration Syntax (`ALGO-LIST-OF`, `FLOW-FOR-EACH`) `[editorial]`
 - In Infra, iterating over a list, set, or map always uses **"of"**, NEVER "in":
   - *Correct*: `For each <var>node</var> of <var>children</var>:`
   - *Incorrect*: `For each <var>node</var> in <var>children</var>:`
 
-### 2.8. Redundant `data-x` Elimination (`ALGO-REDUNDANT-DATA-X`, `XREF-SPAN-AUTOLINK`)
+### 2.8. Redundant `data-x` Elimination (`ALGO-REDUNDANT-DATA-X`, `XREF-SPAN-AUTOLINK`) `[editorial]`
 - Wattsi automatically links cross-references when the inner text matches the term definition name (case-insensitively).
 - Writing `<span data-x="Foo">Foo</span>` or `<span data-x="set and filter HTML">set and filter HTML</span>` is redundant.
 - Omit `data-x` when the text is identical to the target concept: `<span>set and filter HTML</span>`. Keep `data-x` only when the visible text differs from the definition key (e.g. inflections, plurals, or abbreviations).
 
 ---
 
-## 3. State Mutation, Aliasing & Temporal Sequencing
+## 3. State Mutation, Aliasing & Temporal Sequencing `[design]`
 
 ### 3.1. The Shallow Clone Trap (`[=map/clone=]`)
 - In Infra, `[=map/clone=]` and `[=list/clone=]` are **strictly shallow**. Keys and values are copied into a new collection, but nested maps, lists, sets, and objects are **referenced, not copied**.
@@ -183,7 +185,7 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
 
 ---
 
-## 4. HTML Parser, Tree Construction & Edge Cases
+## 4. HTML Parser, Tree Construction & Edge Cases `[design]`
 
 ### 4.1. The Adoption Agency Algorithm (AAA) Audit
 - The Adoption Agency Algorithm (AAA) is the premier source of parser-level corner cases. AAA clones formatting elements, creates elements directly from tokens, moves nodes, and reparents subtrees.
@@ -212,7 +214,7 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
 
 ---
 
-## 5. Parallel Call Site Exhaustiveness & Internal Helpers
+## 5. Parallel Call Site Exhaustiveness & Internal Helpers `[design]`
 
 ### 5.1. Exhaustive Sibling Call Site Audit
 - When modifying the signature, parameters, or return type of an internal parsing or serialization algorithm (e.g. `fragment parsing algorithm steps`, `set and filter HTML`), you MUST audit **every parallel caller across HTML, DOM, and DOM Parsing specifications**:
@@ -241,7 +243,7 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
 
 ---
 
-## 6. Cross-Spec Layering, Sinks & CSP Reporting
+## 6. Cross-Spec Layering, Sinks & CSP Reporting `[design]`
 
 ### 6.1. No Fabricated or Synthetic Sinks
 - Sink names passed to security violation algorithms (Content Security Policy, Trusted Types) MUST correspond to **real, JavaScript-observable API entry points**:
@@ -264,7 +266,7 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
 
 ---
 
-## 7. Formatting and Markup Rules
+## 7. Formatting and Markup Rules `[editorial]`
 
 ### 7.1. Line Wrapping
 - Wrap lines at **100 characters** (`SRC-WRAP-100`). When reviewing, flag only prose that is clearly unwrapped (a line well over 100, or a whole paragraph on one line); a 1–2 character overrun or an under-filled line is not a review comment.
@@ -292,7 +294,7 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
 
 ---
 
-## 8. Prose Style, Grammar and Conventions
+## 8. Prose Style, Grammar and Conventions `[editorial]`
 
 ### 8.1. Conditional Statements
 - **Inline consequence**: Use the full **"If [condition], then [consequence]"** structure (e.g., "If <var>x</var> is true, **then** return.").
@@ -333,7 +335,7 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
 
 ---
 
-## 9. Infra Data Structures and Iteration
+## 9. Infra Data Structures and Iteration `[editorial]`
 
 - **Lists** (`VAL-LIST-OPS`):
   - Literal: `Let <var>list</var> be « "a", "b" ».`
@@ -354,7 +356,7 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
 
 ---
 
-## 10. Writing domintro Blocks, Notes & Warnings
+## 10. Writing domintro Blocks, Notes & Warnings `[editorial]`
 
 `<dl class="domintro">` (`ELEM-DOMINTRO`) provides developer-friendly Web IDL explanations (IDL and normative steps are hidden in the Developer's Edition).
 
@@ -380,7 +382,7 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
 
 ---
 
-## 11. Developer's Edition (w-dev / w-nodev) (`DEV-W-NODEV`)
+## 11. Developer's Edition (w-dev / w-nodev) (`DEV-W-NODEV`) `[editorial]`
 
 The HTML specification compiles into a **Living Standard** and a **Developer's Edition**.
 
@@ -393,7 +395,7 @@ The HTML specification compiles into a **Living Standard** and a **Developer's E
 
 ---
 
-## 12. PR Scope Discipline, Legacy Clauses & Opportunistic Cleanups
+## 12. PR Scope Discipline, Legacy Clauses & Opportunistic Cleanups `[editorial]`
 
 ### 12.1. PR Scope Discipline (Do Not Touch Unrelated Areas)
 - **Do NOT touch or modify areas unrelated to the main purpose of the current branch/PR.**
@@ -406,7 +408,7 @@ The HTML specification compiles into a **Living Standard** and a **Developer's E
   - Fix legacy variable lifecycle issues (`Set` without `Let`, duplicate `Let` for different objects, unbound `<var>`s).
   - Fix outdated markup (e.g. `<code>` inside `<pre><code class="idl">`, bare `Assert:`, redundant `data-x`, missing `</p>` before nested lists).
   - Fix grammar, missing step punctuation (`.`/`:`), or stale domintro notes in the touched section.
-  - Fix subtle logic bugs (e.g. unbound variables on conditional branches, unhandled fallback/null paths, shallow clone leaks) in the modified algorithm.
+  - `[design]` Fix subtle logic bugs (e.g. unbound variables on conditional branches, unhandled fallback/null paths, shallow clone leaks) in the modified algorithm.
 - Do NOT perpetuate broken patterns (bugs, Obsolete forms) just because the surrounding block previously had them.
 - If the cleanup in the touched area is substantial, place it in a separate preparatory commit (e.g. `Editorial: Clean up <algorithm name>` or `Refactor <algorithm name>`) immediately preceding the substantive behavioral commit, rather than mingling them in a single diff.
 
@@ -425,9 +427,9 @@ The HTML specification compiles into a **Living Standard** and a **Developer's E
 A rigorous review does not stop at the specification diff; the PR description and any linked companion PRs in external specifications are frequent vectors for architectural oversights, description drift, and out-of-sync contracts.
 
 ### 13.0. Verify You Are Reviewing the Current Head
-- Fetch with `git fetch -f origin pull/N/head:pr-N`, and check that `git rev-parse pr-N` matches `gh pr view N --json headRefOid` before reviewing, for companion PRs too. Without `-f`, a stale local `pr-N` can silently survive.
+- Fetch with `git fetch origin +pull/N/head:refs/spec-review/pr/N`, and check that `git rev-parse refs/spec-review/pr/N` matches `gh pr view N --json headRefOid` before reviewing, for companion PRs too. The `+` keeps a stale ref from silently surviving, and a ref outside `refs/heads` and `refs/remotes` never overwrites a local branch or gets pruned.
 
-### 13.1. PR Description Hygiene & Preventing Drift
+### 13.1. PR Description Hygiene & Preventing Drift `[merge]`
 - **Description Drift / Staleness**: During multi-round reviews or stacked PR refactors, PRs frequently evolve. The PR description easily becomes stale, describing abandoned algorithms, dropped helpers, or obsolete parameters.
   - *Audit Rule*: The PR description MUST accurately represent the *final proposed diff*, not the author's initial draft.
   - *Pruning*: Explicitly remove references to dropped helpers (e.g., if a helper like "fold set and filter HTML" was eliminated during refactoring, update the PR description).
@@ -436,7 +438,7 @@ A rigorous review does not stop at the specification diff; the PR description an
   - If sibling methods or edge-case legacy sinks are intentionally omitted from a refactor (e.g., `document.execCommand("insertHTML")` or XML document handling), the PR description should explicitly state that they are out-of-scope and explain the rationale.
   - Call out observable behavioral changes (such as text node coalescing differences, changes to mutation observer records, or custom element reaction timing).
 
-### 13.2. Multi-Spec & Companion PR Review
+### 13.2. Multi-Spec & Companion PR Review `[design]`
 Features touching parsing, security, loading, or scripting often span multiple specifications (e.g., HTML, DOM, Trusted Types, CSP, Fetch, Streams, URL, Web IDL). When a PR depends on or modifies an external spec:
 - **Lockstep Companion Audit**:
   - Never review an HTML PR in isolation if it relies on an open companion PR in another repository (e.g., W3C Trusted Types or WHATWG DOM).
@@ -451,27 +453,27 @@ Features touching parsing, security, loading, or scripting often span multiple s
 - **Landing Order & Release Sequencing**:
   - Explicitly document the landing dependency sequence in both PR descriptions. If HTML depends on terms defined in an external spec, confirm whether the dependency PR must be merged first.
 
-### 13.3. The "Editorial:" Prefix Trap on Observable Behavior
+### 13.3. The "Editorial:" Prefix Trap on Observable Behavior `[design]`
 - **Never prefix a PR title or commit message with `Editorial:` if the change introduces ANY web-observable behavioral difference.**
   - *Failure Mode*: Tagging a commit as `Editorial:` when the algorithm change causes navigation timing entries to be created for `srcdoc`, `javascript:`, or error pages.
   - *Maintainer Impact*: WHATWG maintainers and automated bots rely on the `Editorial:` prefix as a signal to skip cross-browser implementer consensus checks, MDN documentation issues, and WPT tests.
   - *Rule*: If an algorithm alteration changes a returned value, alters exception throwing, or modifies when an entry or event is queued, it is **normative**. Keep the commit message un-prefixed (or prefixed with the topic area, e.g. `Navigation timing: ...`).
   - *Calibration*: editors do accept `Editorial:` for fixes where the old text had exactly one sensible reading and implementations already agree — an unbound `<var>` that can only mean one thing, a call site passing `x's value` where `x` was already the value, or arguments in the wrong order (e.g. whatwg/html#13026). Flag the prefix only when the fix *chooses* between plausible readings or changes what a conforming implementation does.
 
-### 13.4. Consolidate Findings That Share a Root Cause
+### 13.4. Consolidate Findings That Share a Root Cause `[design]`
 - If one finding's fix also resolves another, report them as one finding, with one fix aimed at the cause.
 - *Failure Mode*: A symptom and its cause are reported separately, each with its own fix. The author applies both. The symptom's fix changes pre-existing text more broadly than needed, and the next round has to revert it.
 
-### 13.5. Post-Fix 4-Way Synchronization Sweep
+### 13.5. Post-Fix 4-Way Synchronization Sweep `[design]`
 - Whenever a review fix changes a normative condition, parameter name, or edge-case behavior, verify all four stay in lockstep before pushing:
   1. **Normative algorithm steps**
-  2. **Adjacent `<p class="note">` and `domintro` blocks** (frequently left describing the pre-fix behavior or old variable names)
+  2. `[editorial]` **Adjacent `<p class="note">` and `domintro` blocks** (frequently left describing the pre-fix behavior or old variable names)
   3. **PR description / commit message** (check for inverted conditions like `is` vs. `is not`, renamed parameters, or unmentioned changes to existing APIs)
   4. **Companion WPT PR** (update test expectations in the same round so tests do not contradict the new spec commit).
 
 ---
 
-## 14. Reviewing Web Platform Tests (WPT) & Coverage Auditing
+## 14. Reviewing Web Platform Tests (WPT) & Coverage Auditing `[design]`
 
 A specification review is never complete without inspecting the accompanying Web Platform Tests (WPT). Reviewing the WPT PR diff in parallel with the spec diff is essential to catch edge cases, omitted sibling methods, and underspecified behaviors.
 
@@ -519,7 +521,7 @@ Fragment parsing and DOM mutations vary significantly across node types. Ensure 
 
 The skill includes three deterministic Python static analyzers in `scripts/` to catch syntactic, IDL, variable lifecycle, and coverage failures automatically before or during spec review:
 
-### 15.1. Web IDL Analyzer (`check_webidl.py`)
+### 15.1. Web IDL Analyzer (`check_webidl.py`) `[editorial]`
 Validates `<pre><code class="idl">` blocks against WHATWG Web IDL guidelines:
 - **Rule 1 (IDL-XREF-SPAN)**: Flags any `<code>` tags used inside `<pre><code class="idl">` (xrefs must use `<span>`).
 - **Rule 2 (IDL-OPTIONAL-DICT-DEFAULT)**: Flags optional dictionary arguments that omit the required `= {}` default value.
@@ -530,7 +532,7 @@ Validates `<pre><code class="idl">` blocks against WHATWG Web IDL guidelines:
 python3 scripts/check_webidl.py path/to/source.html
 ```
 
-### 15.2. Algorithm Prose & Lifecycle Analyzer (`check_algorithms.py`)
+### 15.2. Algorithm Prose & Lifecycle Analyzer (`check_algorithms.py`) `[editorial]`
 Validates algorithm steps inside `<div algorithm>` blocks and spec markup:
 - **Rule 4 (ALGO-UNDECLARED-SET / ALGO-DUPLICATE-LET)**: Validates variable lifecycle. Flags `Set <var>x</var> to` when `<var>x</var>` was never introduced with `Let`, and flags duplicate `Let <var>x</var> be` declarations in the same algorithm.
 - **ALGO-UNBOUND-VAR-OUTER-SCOPE**: Flags variables declared with `Let` inside conditional sub-steps (`<ol>` depth >= 2) that are subsequently referenced at outer scope without an outer declaration.
@@ -550,7 +552,7 @@ Validates algorithm steps inside `<div algorithm>` blocks and spec markup:
 python3 scripts/check_algorithms.py path/to/source.html
 ```
 
-### 15.3. WPT Coverage & Diff Analyzer (`check_wpt_coverage.py`)
+### 15.3. WPT Coverage & Diff Analyzer (`check_wpt_coverage.py`) `[design]`
 Audits spec changes against accompanying Web Platform Tests:
 - **WPT-MISSING-SINK-COVERAGE**: Extracts all modified IDL methods and algorithm sinks from the spec diff, scans the WPT directory/diff, and flags any modified sinks with zero test coverage (catching forgotten sibling methods like `ShadowRoot.innerHTML` or `createContextualFragment`).
 - **WPT-MISSING-EXCEPTION-TEST**: Verifies that every `throw a "..." DOMException` in the spec algorithm has a corresponding `assert_throws_dom("...")` test.
@@ -569,25 +571,25 @@ python3 scripts/check_wpt_coverage.py --spec-file path/to/spec.html --wpt-dir pa
 Before finalizing or approving any HTML specification PR, run through this comprehensive checklist:
 
 ### Automated Static Analysis
-- [ ] Run `python3 scripts/check_webidl.py <files>` (no new Web IDL xref or optional dict default errors in changed lines; merged text has some).
-- [ ] Run `python3 scripts/check_algorithms.py <files>` (no new variable lifecycle, scope leak, unused var, punctuation, or assertion errors in changed lines; merged text has many, some of them false positives).
-- [ ] Run `python3 scripts/check_wpt_coverage.py --spec-file <spec> --wpt-dir <wpt>` (all modified sinks and exceptions covered).
+- [ ] `[editorial]` Run `python3 scripts/check_webidl.py <files>` (no new Web IDL xref or optional dict default errors in changed lines; merged text has some).
+- [ ] `[editorial]` Run `python3 scripts/check_algorithms.py <files>` (no new variable lifecycle, scope leak, unused var, punctuation, or assertion errors in changed lines; merged text has many, some of them false positives).
+- [ ] `[design]` Run `python3 scripts/check_wpt_coverage.py --spec-file <spec> --wpt-dir <wpt>` (all modified sinks and exceptions covered).
 
 ### PR Description, Commit Hygiene & Companion PR Audit
 - [ ] **Current Head Verified**: Does the local SHA match `headRefOid` for every PR reviewed (see 13.0)?
-- [ ] **PR Scope Discipline (No Unrelated Edits)**: Are all modified files, algorithms, and clauses directly relevant to the main purpose of the PR? Have drive-by reformatting, opportunistic refactoring of distant algorithms, and unrelated edits been pruned?
-- [ ] **Scoped Cleanup in Touched Areas**: Have logic bugs, markup mistakes, and Obsolete forms in the *touched* clauses been fixed rather than perpetuated?
-- [ ] **Commit Separation for Cleanups**: If cleanups in touched areas are non-trivial, are they separated into dedicated preparatory commits (e.g. `Editorial: ...`) preceding the substantive changes?
-- [ ] **No "Editorial:" Prefix on Observable Behavior**: Is the PR or commit prefixed with `Editorial:`? If the change causes entries to be created/queued, changes return values, or rejects promises, remove `Editorial:`.
-- [ ] **PR Description Freshness**: Does the PR description match the actual final diff? Have mentions of dropped helpers, obsolete steps, or old syntax been pruned?
-- [ ] **Checklist & Template Completeness**: Are WPT test links, issue links, and engine bugs properly documented without broken markdown links?
-- [ ] **Scope Exclusions Noted**: Are intentional out-of-scope sibling sinks (e.g. legacy `execCommand`, XML document limits) documented in the PR body?
-- [ ] **Companion PR Synchronization**: If a companion PR in another spec exists (e.g. Trusted Types, DOM, Fetch), has it been audited? Do parameter contracts, sentinel types, and boolean polarities agree in both directions?
-- [ ] **Anchor & Link Validation**: Do cross-spec `data-x-href` links match the companion spec's exact exported anchor fragments?
-- [ ] **Landing Order Established**: Is the merge sequence clearly stated between the companion PRs?
-- [ ] **Findings Consolidated**: Are findings with a shared root cause reported as one, with one fix (see 13.4)?
+- [ ] `[editorial]` **PR Scope Discipline (No Unrelated Edits)**: Are all modified files, algorithms, and clauses directly relevant to the main purpose of the PR? Have drive-by reformatting, opportunistic refactoring of distant algorithms, and unrelated edits been pruned?
+- [ ] `[editorial]` **Scoped Cleanup in Touched Areas**: Have logic bugs, markup mistakes, and Obsolete forms in the *touched* clauses been fixed rather than perpetuated?
+- [ ] `[editorial]` **Commit Separation for Cleanups**: If cleanups in touched areas are non-trivial, are they separated into dedicated preparatory commits (e.g. `Editorial: ...`) preceding the substantive changes?
+- [ ] `[design]` **No "Editorial:" Prefix on Observable Behavior**: Is the PR or commit prefixed with `Editorial:`? If the change causes entries to be created/queued, changes return values, or rejects promises, remove `Editorial:`.
+- [ ] `[merge]` **PR Description Freshness**: Does the PR description match the actual final diff? Have mentions of dropped helpers, obsolete steps, or old syntax been pruned?
+- [ ] `[merge]` **Checklist & Template Completeness**: Are WPT test links, issue links, and engine bugs properly documented without broken markdown links?
+- [ ] `[merge]` **Scope Exclusions Noted**: Are intentional out-of-scope sibling sinks (e.g. legacy `execCommand`, XML document limits) documented in the PR body?
+- [ ] `[design]` **Companion PR Synchronization**: If a companion PR in another spec exists (e.g. Trusted Types, DOM, Fetch), has it been audited? Do parameter contracts, sentinel types, and boolean polarities agree in both directions?
+- [ ] `[design]` **Anchor & Link Validation**: Do cross-spec `data-x-href` links match the companion spec's exact exported anchor fragments?
+- [ ] `[merge]` **Landing Order Established**: Is the merge sequence clearly stated between the companion PRs?
+- [ ] `[design]` **Findings Consolidated**: Are findings with a shared root cause reported as one, with one fix (see 13.4)?
 
-### Web Platform Tests (WPT) Coverage Audit
+### Web Platform Tests (WPT) Coverage Audit `[design]`
 - [ ] **Diff-to-Test Mapping**: Does every new branch, throwing condition, and fallback path in the spec diff have an explicit test case?
 - [ ] **Sibling Sinks Tested**: Are all modified parallel methods (`Element.innerHTML`, `ShadowRoot.innerHTML`, `outerHTML`, `insertAdjacentHTML`, `createContextualFragment`, `setHTML`) tested, not just the primary new API?
 - [ ] **Atomicity Tested**: Are tests present verifying that when an exception is thrown, the destination DOM remains pristine and unmutated?
@@ -599,7 +601,7 @@ Before finalizing or approving any HTML specification PR, run through this compr
 - [ ] **Non-Masking Negative Tests**: In fallback/negative tests, would partially parsing the invalid input select a *different* outcome from the fallback?
 - [ ] **Can't Fail or Stall**: Do any subtests pass without the change, and do waits on the behavior under test time out?
 
-### Algorithmic Correctness & State
+### Algorithmic Correctness & State `[design]`
 - [ ] **Scope Leaks & Unbound Variables**: Are any variables declared with `Let` inside conditional sub-lists (`<ol>`) referenced outside that branch? (Initialize with `Let <var>x</var> be null` in outer scope).
 - [ ] **Pre-Initialization State Access**: Are capability checks, permissions policy, or environment settings queried on an object *before* its subordinate objects (`window.document`, parent) are linked?
 - [ ] **Fallback & Null Path Auditing**: When guarding an algorithm step with `If <var>controller</var> is non-null:`, what happens on the fallback path (`srcdoc`, `javascript:`, error pages)? Are entries or state dropped?
@@ -612,20 +614,20 @@ Before finalizing or approving any HTML specification PR, run through this compr
 - [ ] **Atomic Failure**: Are option validation, parser creation, and type checks performed *before* any destructive DOM mutations (clearing children, detaching nodes)?
 - [ ] **Dictionary Types in Algorithms**: Are there any invalid `If options is a FooOptions` checks? (Check keys via `exists` or default fallback instead).
 
-### Parser & Tree Construction
+### Parser & Tree Construction `[design]`
 - [ ] **Adoption Agency Algorithm**: Does AAA create, reparent, or clone elements without your new checks? Are parentless `lastNode` and self-append loops prevented?
 - [ ] **Root & Body Attribute Merging**: Do duplicate start tags merge attributes without passing through element sanitization/validation?
 - [ ] **Speculative Parsing**: Does speculative parsing reflect any new blocking, sanitization, or script rules?
 - [ ] **Template Redirection**: Does every insertion method redirect `HTMLTemplateElement` to `template.content`?
 - [ ] **Shared Parser Contexts**: Do changes to shared parser algorithms preserve behavior across the document parser, fragment parsers, speculative parser, and XML parser?
 
-### Call Site & Architecture Audit
+### Call Site & Architecture Audit `[design]`
 - [ ] **Exhaustive Call Sites**: Have all sibling entry points (`Element.innerHTML`, `ShadowRoot.innerHTML`, `outerHTML`, `insertAdjacentHTML`, `createContextualFragment`, `parseFromString`, `setHTML`, `parseHTML`) been audited for signature changes?
 - [ ] **No Masking Defaults**: Are internal abstract algorithm parameters mandatory where defaults could silently mask forgotten callers?
 - [ ] **Real Sink Names**: Are sink names passed to security violation reporting actual API names (e.g. `"Element innerHTML"`), never synthetic names (`"Sanitizer"`)?
 - [ ] **Cross-Spec Sentinels**: Are sentinels passed as proper specification objects, not string literals?
 
-### Web IDL, Prose & Markup
+### Web IDL, Prose & Markup `[editorial]`
 - [ ] **IDL Cross-References**: Do cross-references inside `<pre><code class="idl">` use `<span>` exclusively, without `<code>`?
 - [ ] **Optional IDL Dictionaries**: Do optional dictionaries without required members specify `= {}`?
 - [ ] **Variable Declarations**: Does the first assignment use `Let` and subsequent assignments use `Set` (`VAR-LET-SET`)? No second `Let` for a different object; every `<var>` bound? (`Let <var>x</var> be null` before branches that assign it is correct hoisting, not a defect.)
@@ -638,7 +640,7 @@ Before finalizing or approving any HTML specification PR, run through this compr
 - [ ] **Line Wrapping & Block Layout**: Any clearly unwrapped prose (`SRC-WRAP-100`)? No newlines immediately before `>`? No blank line just inside a note/example/`<li>` (`SRC-LI-P`)? `<li>` with multiple block children indented (`SRC-INDENT-BLOCK`)?
 - [ ] **Grammatical Conjunctions**: Did removing an item from a list preserve the "and"/"or" conjunction?
 
-### House Style (`html-style-guide.md`)
+### House Style (`html-style-guide.md`) `[editorial]`
 - [ ] **Branch Tier & Scope**: Is new normative text written in the **Modern** style and touched text free of **Obsolete** forms, without demanding Accepted → Modern rewrites of untouched or carried-over text?
 - [ ] **Typed dfns, Keys & Export**: Do new `<dfn>`s use typed attributes (`attribute`, `method`, `element-attr`, `event`, …) with `for=""`, `data-x` in the right place, and `export` when needed by other specs (`DFN-TYPED`, `DFN-EXPORT`)?
 - [ ] **Preserved Anchors**: Do renamed/moved headings and exported `<dfn>`s keep the old id via `<span id="old-id">` or `<dfn id="old-id">` (`HDR-ALIAS-ANCHOR`)?
@@ -650,7 +652,7 @@ Before finalizing or approving any HTML specification PR, run through this compr
 - [ ] **Exceptions & Promises**: `throw a/an <span>"<code>XError</code>"</span> <code>DOMException</code>`; promises created in a named realm when it's ambiguous, and resolved `"with undefined"` (`EXC-THROW-DOMEXCEPTION`, `PROM-HANDLING`)?
 - [ ] **Conformance & Vocabulary**: Lowercase `"must"`/`"should"`/`"may"` with an explicit conformance class (`CONF-RFC2119`)? `"navigable"` rather than `"browsing context"` (`VOC-NAVIGABLE`)? `"is <span>same origin</span> with"` vs. `"same-origin"` (`VOC-SAME-ORIGIN`)?
 
-### Domintro & Documentation
+### Domintro & Documentation `[editorial]`
 - [ ] **Exception Parity**: Do domintro `<dd>` exception statements match the actual normative throwing behavior?
 - [ ] **Stale Warnings & Notes**: Have `<p class="warning">` and adjacent notes been updated to reflect changed steps or new policy, parser, or security capabilities?
 - [ ] **Interface Qualification**: Are multi-interface methods qualified (e.g. `"The Element innerHTML setter steps are:"`)?
