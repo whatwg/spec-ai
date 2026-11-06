@@ -15,6 +15,12 @@ House-style rules (markup, `<dfn>`s, preambles, IDL member prose, tasks/events, 
 
 Refer to this skill when authoring spec text, reviewing pull requests, or conducting rigorous self-reviews to prevent common failure modes that pass automated syntax checks (Wattsi/Bikeshed) but introduce critical logical, security, or architectural regressions.
 
+**Phase map** (for `spec-pr-review`, and for reviewing behavior before style):
+- *Design phase* (behavior, normative, test correctness): §2.5, §§3–6, the logic-bug items in §12.2, §§13.2–13.4, §13.5 items 1, 3, and 4, §14, `check_wpt_coverage.py`, and the checklist groups on companion PRs, WPT coverage, algorithmic correctness, parser, and call sites.
+- *Editorial phase* (wording, markup, style): §1, §§2.1–2.4, §§2.6–2.8, §§7–11, §12 except its logic-bug items, §13.5 item 2 (notes and domintro anywhere that the change makes stale), [`html-style-guide.md`](html-style-guide.md), `check_webidl.py`, `check_algorithms.py`, and the checklist groups on Web IDL, prose and markup, house style, and domintro.
+- An editorial-looking rule that changes behavior when broken (e.g. an unbound variable with more than one plausible reading, §13.3) is a design finding.
+- §13.1 (PR description) is for the author and editors at merge time: mention drift in the report, not as a finding against the change.
+
 ### Working with `whatwg/html`'s `source` File (`split_html.py`)
 
 `whatwg/html`'s `source` file is over 160,000 lines, so reading or editing it whole is slow and error-prone. Before examining or editing `source`, use `scripts/split_html.py` (bundled in this skill directory) to split `source` at each `<h2` tag into `split_source/` (`00_start.html`, `01_introduction.html`, etc.):
@@ -425,7 +431,7 @@ The HTML specification compiles into a **Living Standard** and a **Developer's E
 A rigorous review does not stop at the specification diff; the PR description and any linked companion PRs in external specifications are frequent vectors for architectural oversights, description drift, and out-of-sync contracts.
 
 ### 13.0. Verify You Are Reviewing the Current Head
-- Fetch with `git fetch -f origin pull/N/head:pr-N`, and check that `git rev-parse pr-N` matches `gh pr view N --json headRefOid` before reviewing, for companion PRs too. Without `-f`, a stale local `pr-N` can silently survive.
+- Fetch with `git fetch origin +pull/N/head:refs/spec-review/pr/N`, and check that `git rev-parse refs/spec-review/pr/N` matches `gh pr view N --json headRefOid` before reviewing, for companion PRs too. The `+` keeps a stale ref from silently surviving, and a ref outside `refs/heads` and `refs/remotes` never overwrites a local branch or gets pruned.
 
 ### 13.1. PR Description Hygiene & Preventing Drift
 - **Description Drift / Staleness**: During multi-round reviews or stacked PR refactors, PRs frequently evolve. The PR description easily becomes stale, describing abandoned algorithms, dropped helpers, or obsolete parameters.

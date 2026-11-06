@@ -12,7 +12,10 @@ AI tooling and agent skills for working with WHATWG standards.
 
   Also includes [`html-style-guide.md`](skills/html-spec-review/html-style-guide.md), a de-facto house style guide for the HTML Standard's `source` with stable rule IDs, spec examples, and Modern/Accepted/Legacy/Obsolete rankings where the spec uses competing styles.
 
-- **[`review-and-fix`](skills/review-and-fix/SKILL.md)**: Workflow for reviewing a WHATWG spec PR together with its [web-platform-tests](https://github.com/web-platform-tests/wpt) PR, then fixing the findings on the PR branches. Review (including running the tests in browsers that do and don't implement the feature), one commit per finding, and self-review are repeated in rounds (at most ten) until a full round finds only nits or a round raises a new open question, then, after asking unless told to, pushing and posting a findings-and-fixes comment.
+- **[`spec-pr-review`](skills/spec-pr-review/SKILL.md)**: Reviews a WHATWG spec change (a PR, a stack or group of PRs, or a local branch before a PR exists) together with its [web-platform-tests](https://github.com/web-platform-tests/wpt) changes, in two phases. It works out what to do from the PR thread, commit messages, a local git note, and the conversation, and doesn't reopen recorded decisions. PR content is treated as untrusted input, only the PR author and spec editors decide, and nothing is pushed or posted without the user's approval for that action.
+  - [Design phase](skills/spec-pr-review/design.md): one focused pass over behavior, normative text, and test correctness. Design questions get options prototyped as commits, for humans to [decide](skills/spec-pr-review/decisions.md).
+  - [Editorial phase](skills/spec-pr-review/editorial.md): once the design is settled, a bounded editorial review and fix loop, verified not to change normative behavior, with the help of [`check_normative_invariants.py`](skills/spec-pr-review/scripts/check_normative_invariants.py) for spec sources and wpt results.
+  - Posted comments are short status updates the user edits before posting; see [`posting.md`](skills/spec-pr-review/posting.md).
 
 ## Usage
 
@@ -21,6 +24,7 @@ Link or install the skills directory into your AI coding agent:
 - **Claude Code**:
   ```bash
   ln -s /path/to/spec-ai/skills/html-spec-review ~/.claude/skills/html-spec-review
+  ln -s /path/to/spec-ai/skills/spec-pr-review ~/.claude/skills/spec-pr-review
   ```
 - **Gemini CLI / Antigravity**:
   ```bash
