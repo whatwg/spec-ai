@@ -80,7 +80,8 @@ Then:
   - Write 2–3 options, including "keep as is" if it's viable.
   - Prototype each option as commits, spec and tests, on its own branch; implementing an
     option is how you find what's wrong with it. Check each prototype against the delta list,
-    the call sites, and the tests in browsers.
+    the call sites, and the tests in browsers. If an option needs substantial new spec text
+    (e.g. a layout model), describe it instead and offer to prototype it.
   - Record what prototyping revealed, and revise or drop options that fall apart, saying why.
   - For each option, give the tradeoffs: compat, implementer cost, consistency with the
     platform, ergonomics for authors, spec complexity. Don't recommend one, except in "fix all"

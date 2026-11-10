@@ -47,12 +47,15 @@ user owns the comment:
   new items that need people's attention, post a new comment.
 
 Content: a short status update, then what needs input. If any item isn't applied, the first
-line says the PR branch doesn't include those fixes yet. For each item:
+line says the PR branch doesn't include those fixes yet. Put items first raised in this review at
+the top, labeled as new; items already raised on the thread go after them in a `<details>`, for
+book-keeping, each linking the comments that raised it. For each item:
 
-- its ID and the problem with a short concrete case;
+- its ID and the problem with a short concrete case; for an item someone else raised, link their
+  comments and name them without `@`;
 - its state, in words that can't be mistaken:
   - "Fixed in <sha>", only for a commit on the PR branch;
-  - "Not applied: proposed fix <link to the fork branch>";
+  - "Not applied: proposed fix <link to the fork branch>"; "Open, no fix yet";
   - "Applied in <sha>, would like confirmation from <people>";
   - "Kept as is", "Declined", or "Dropped", with the reason in one sentence; "Deferred to
     #<N>"; "Moved to #<N> Q<M>";
@@ -67,7 +70,8 @@ Also:
 - No behavior delta list, summary of the change, editorial findings, or praise. Address the
   people on the PR and ask; don't instruct the author.
 - End with "Reviewed at <spec sha> on <base sha>, with web-platform-tests/wpt#<N> at <sha>,
-  using spec-pr-review." (one "wpt#<N> at <sha>" per wpt PR, none if there's none). Later runs
+  using spec-pr-review." (one "wpt#<N> at <sha>" per open wpt PR; for tests already merged,
+  "web-platform-tests/wpt@<sha>" at the commit you ran; none if there are no tests). Later runs
   rely on this line; if the user's edit removes it, say so.
 - After a design review that found nothing, offer a one-line comment with just that line.
 - In a group, see [`groups.md`](groups.md) §Posting.
