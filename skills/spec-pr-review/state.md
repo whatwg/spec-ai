@@ -108,9 +108,10 @@ The latest of these, and nothing else:
 
 - a design review in this conversation, which also covers decisions applied and checked since
   ([`decisions.md`](decisions.md) §Applying);
-- a comment ending with this skill's "Reviewed at" line ([`posting.md`](posting.md)), by the
-  user's login or a login with write access to the spec repo (the PR author's only if they
-  have it);
+- a comment ending with this skill's "Reviewed at … using spec-pr-review." line
+  ([`posting.md`](posting.md)), either bare or in a `<details>` at the end (match the line, not
+  the summary), by the user's login or a login with write access to the spec repo (the PR
+  author's only if they have it);
 - the local record;
 - a decider's approving review, at the commit it was given for.
 
