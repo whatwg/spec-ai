@@ -17,6 +17,16 @@ AI tooling and agent skills for working with WHATWG standards.
   - [Editorial phase](skills/spec-pr-review/editorial.md): once the design is settled, a bounded editorial review and fix loop, verified not to change normative behavior, with the help of [`check_normative_invariants.py`](skills/spec-pr-review/scripts/check_normative_invariants.py) for spec sources and wpt results.
   - Posted comments are short status updates the user edits before posting; see [`posting.md`](skills/spec-pr-review/posting.md).
 
+## How they fit together
+
+`spec-pr-review` is the review flow: design first, decisions by humans, then editorial, and what to surface when. For whatwg/html changes it uses `html-spec-review` for the HTML specifics; its `[design]` and `[editorial]` tags say which phase checks each rule. `html-spec-review` also works on its own for writing or reading HTML spec text.
+
+The flow works the same for a PR author self-reviewing or applying suggested edits, an editor reviewing, or anyone else reviewing or contributing fixes.
+
+Review items get IDs (D1 for defects, Q1 for design questions) and states (open, proposed, decided, deferred, …). Posted comments and `Review-item:` commit trailers make them public, so anyone's next run rebuilds the same ledger from the PR and doesn't reopen what's settled. This extends to [stacks and groups of PRs](skills/spec-pr-review/groups.md), also across repos, such as related Trusted Types and HTML PRs.
+
+Using it is optional. One person using `spec-pr-review` doesn't mean anyone else has to: its comments are ordinary PR comments, and it reads human reviews and replies as input like any other.
+
 ## Usage
 
 Link or install the skills directory into your AI coding agent:
