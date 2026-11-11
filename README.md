@@ -27,6 +27,8 @@ Review items get IDs (D1 for defects, Q1 for design questions) and states (open,
 
 Using it is optional. One person using `spec-pr-review` doesn't mean anyone else has to: its comments are ordinary PR comments, and it reads human reviews and replies as input like any other.
 
+Both skills jot notes in `~/.local/state/skill-improvement/spec-ai.md` when their guidance proves wrong or costs time, and may offer a PR here once the work they came from is public, following [`build-tooling`](https://github.com/zcorpan/agent-tooling)'s `improve.md`. Saying "don't ask again" lists the skill in `~/.config/skill-improvement/opt-out`, which turns this off in every project until you remove the line.
+
 ## Usage
 
 Link or install the skills directory into your AI coding agent:

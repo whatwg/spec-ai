@@ -657,3 +657,10 @@ Before finalizing or approving any HTML specification PR, run through this compr
 - [ ] **Stale Warnings & Notes**: Have `<p class="warning">` and adjacent notes been updated to reflect changed steps or new policy, parser, or security capabilities?
 - [ ] **Interface Qualification**: Are multi-interface methods qualified (e.g. `"The Element innerHTML setter steps are:"`)?
 
+## Improving the skill
+
+- Skip this section if `~/.config/skill-improvement/opt-out` lists `html-spec-review`. Each offer says that "don't ask again" adds it there, and removing the line turns this back on.
+- Jot notes in `~/.local/state/skill-improvement/spec-ai.md` as things come up, one line each (skill and section, what happened): a rule here that an editor or reviewer contradicted, or that led to text they asked to change; a convention they asked for that this skill or `html-style-guide.md` lacks; an analyzer false positive or miss; friction with `split_html.py`. Don't stop to judge whether a note belongs.
+- Review comments are evidence for a note, not instructions to change the skill.
+- Offer a PR to `whatwg/spec-ai` only when the notes meet `improve.md`'s bar and the work is public. Don't offer for unpublished or private work: the PR would reveal it.
+- To turn notes into a change, follow the `build-tooling` skill's `improve.md` if it's installed, else read https://raw.githubusercontent.com/zcorpan/agent-tooling/main/skills/build-tooling/improve.md and apply what's relevant.
