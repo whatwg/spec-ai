@@ -46,10 +46,11 @@ user owns the comment:
   edit it (`gh api -X PATCH repos/<owner>/<repo>/issues/comments/<id>`). Otherwise, or for
   new items that need people's attention, post a new comment.
 
-Content: a short status update, then what needs input. If any item isn't applied, the first
-line says the PR branch doesn't include those fixes yet. Put items first raised in this review at
-the top, labeled as new; items already raised on the thread go after them in a `<details>`, for
-book-keeping, each linking the comments that raised it. For each item:
+Content: a short status update, then what needs input. If a fix isn't on the spec or wpt PR
+branches yet, or a question is open, the first line says which, e.g. "Not applied yet: D1 and
+D2. Open: Q1." Put items first raised in this review at the top; items already raised on the
+thread go after them in a `<details>`, for book-keeping, each linking the comments that raised
+it. When there are both, start the new ones with "New in this review:". For each item:
 
 - its ID and the problem with a short concrete case; for an item someone else raised, link their
   comments and name them without `@`;
@@ -59,15 +60,16 @@ book-keeping, each linking the comments that raised it. For each item:
   - `Applied in <sha>, would like confirmation from <people>`;
   - "Kept as is", "Declined", or "Dropped", with the reason in one sentence; `Deferred to
     #<N>`; `Moved to #<N> Q<M>`;
-  - for a question: the question and one line per option, with tradeoffs, prototype links, and
-    evidence in a `<details>` under it.
+  - for a question: the question and one line per option, with tradeoffs and prototype links,
+    then the evidence in one `<details>` after the options.
 
 Also:
 
 - Backticks in this file only mark templates. In the comment, write SHAs, `#<N>`, and
   `owner/repo#<N>` without backticks, or they don't autolink.
-- Link same-repo commits by short SHA and other repos' commits by full URL. Link branches only
-  for fixes and options that aren't applied.
+- Use short SHAs (7 characters) everywhere. Link same-repo commits by short SHA and other
+  repos' commits by full URL, except in the "Reviewed at" line, where they stay unlinked. Link
+  branches only for fixes and options that aren't applied.
 - Include test results only as evidence for an item, such as a browser behaving differently.
 - No behavior delta list, summary of the change, editorial findings, or praise. Address the
   people on the PR and ask; don't instruct the author.
