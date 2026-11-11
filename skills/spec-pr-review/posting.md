@@ -52,8 +52,8 @@ D2. Open: Q1." Put items first raised in this review at the top; items already r
 thread go after them in a `<details>`, for book-keeping, each linking the comments that raised
 it. When there are both, start the new ones with "New in this review:". For each item:
 
-- its ID and the problem with a short concrete case; for an item someone else raised, link their
-  comments and name them without `@`;
+- the ID with a colon, not bold (e.g. "Q1: …"), and the problem with a short concrete case;
+  for an item someone else raised, link their comments and name them without `@`;
 - its state, in words that can't be mistaken:
   - `Fixed in <sha>`, only for a commit on the PR branch;
   - `Not applied: proposed fix <link to the fork branch>`; "Open, no fix yet";
