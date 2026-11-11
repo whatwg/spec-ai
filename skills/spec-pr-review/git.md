@@ -38,7 +38,8 @@ If a name is taken, add a numeric suffix.
 ## Proposal and prototype branches
 
 - Start them from the working branch, one commit per defect, and commits (spec and tests) per
-  option.
+  option. In wpt, that's the working branch of the wpt PR the fix changes; for new test files,
+  the wpt PR that tests the same part of the change, or the wpt base if there's none.
 - When the working branch moves (new commits, a force-push), rebase them onto it. If that
   conflicts in normative text or tests, don't resolve it by hand: rebuild the fix or option on
   the new head, verify it again, and say so.

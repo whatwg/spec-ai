@@ -31,8 +31,10 @@ list, the ledger (decided items marked as settled), the unverified concerns its 
 and one lens, but not your own findings. Tell them to report only behavior, normative, and
 test-correctness issues, each with a concrete case (input and wrong outcome), and to drop
 editorial ones. For HTML, also give each the `[design]` rules of `html-spec-review` that fit
-its lens. One reviewer can take several lenses when the change is small or stays in one area;
-otherwise use one per lens. Skip lenses that don't apply.
+its lens. Point them at a clean clone at the PR heads, not your working clones, and start your
+own prototypes only after §4, so they can't see your work. One reviewer can take several lenses
+when the change is small or stays in one area; otherwise use one per lens. Skip lenses that
+don't apply. You run the tests and give the results to the Tests reviewer.
 
 - **Design and intent**: does it solve the issue; alternatives; consistency with the rest of the
   platform; compat and implementer status; security and privacy, including content in the
@@ -66,8 +68,8 @@ First check the finding is this change's: its fix must land in this PR. These ar
 go in the report's "Not this change's" list, never in a posted comment:
 
 - a problem the change didn't introduce or make worse: link its issue, or offer to file one.
-  A place the change's new rule or hook should reach but doesn't is the change's, even in text
-  it didn't touch;
+  A place the change's new rule or hook should reach but doesn't is the change's defect, even
+  in text it didn't touch and even if nothing can observe it yet (say so in the item);
 - a gap whose fix belongs in another spec: offer to file an issue there (in a group, it's the
   owning PR's item, see [`groups.md`](groups.md));
 - PR description wording, landing order, and the merge commit message, which the editors

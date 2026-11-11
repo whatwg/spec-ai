@@ -18,6 +18,7 @@
   commits to <PR branch>?`, offering a separate PR as the alternative.
 - **Someone else's PR, otherwise**: offer to push the commits to the user's fork and open a
   separate PR.
+- A wpt PR goes by the same cases, with write access to wpt in place of the spec repo.
 - **Proposal and prototype branches**: only to the user's fork, never to the spec's or wpt's own
   repo, even if the user can push there; only when a comment links them. A draft can link
   them before they exist; push them after the yes, before posting. If there's no fork, offer to
