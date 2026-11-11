@@ -31,8 +31,10 @@ list, the ledger (decided items marked as settled), the unverified concerns its 
 and one lens, but not your own findings. Tell them to report only behavior, normative, and
 test-correctness issues, each with a concrete case (input and wrong outcome), and to drop
 editorial ones. For HTML, also give each the `[design]` rules of `html-spec-review` that fit
-its lens. For a small change, one reviewer can take several lenses; skip lenses that don't
-apply.
+its lens. Point them at a clean clone at the PR heads, not your working clones, and start your
+own prototypes only after §4, so they can't see your work. One reviewer can take several lenses
+when the change is small or stays in one area; otherwise use one per lens. Skip lenses that
+don't apply. You run the tests and give the results to the Tests reviewer.
 
 - **Design and intent**: does it solve the issue; alternatives; consistency with the rest of the
   platform; compat and implementer status; security and privacy, including content in the
@@ -42,7 +44,8 @@ apply.
 - **Tests**:
   - Run every test file where the feature is implemented, and look for harness errors and
     timeouts, not just failures. Run them where it isn't implemented too: subtests that pass
-    there may not be able to fail.
+    there may not be able to fail. If you can't use `./wpt run`, load the files in the browsers
+    and say so; a hand-written page checks a finding but doesn't replace running the tests.
   - Every behavior delta needs a test that can fail, and expectations follow the spec, not an
     engine.
   - Look for flakiness, leaked state, and stalls: waits and cleanups that depend on the behavior
@@ -64,7 +67,9 @@ with the base: a problem that exists there too isn't introduced by this change (
 First check the finding is this change's: its fix must land in this PR. These aren't items, and
 go in the report's "Not this change's" list, never in a posted comment:
 
-- a problem the change didn't introduce or make worse: link its issue, or offer to file one;
+- a problem the change didn't introduce or make worse: link its issue, or offer to file one.
+  A place the change's new rule or hook should reach but doesn't is the change's defect, even
+  in text it didn't touch and even if nothing can observe it yet (say so in the item);
 - a gap whose fix belongs in another spec: offer to file an issue there (in a group, it's the
   owning PR's item, see [`groups.md`](groups.md));
 - PR description wording, landing order, and the merge commit message, which the editors
@@ -97,7 +102,8 @@ Report in chat. This is for the user; a posted comment is much shorter
 - Each new or still-open item: its ID, who raised it, the problem with its concrete case, and
   the proposed commit, or the options with tradeoffs, prototype branches, and what prototyping
   revealed.
-- Concerns that didn't hold, and concerns already addressed, one line each.
+- Concerns and findings that didn't hold (with why), and concerns already addressed, one line
+  each.
 - Decided, declined, deferred, and moved items, with where each is recorded, and approvals
   given while items weren't applied ([`state.md`](state.md) §Last design review).
 - The "Not this change's" list.

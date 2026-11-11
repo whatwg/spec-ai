@@ -18,9 +18,11 @@
   commits to <PR branch>?`, offering a separate PR as the alternative.
 - **Someone else's PR, otherwise**: offer to push the commits to the user's fork and open a
   separate PR.
+- A wpt PR goes by the same cases, with write access to wpt in place of the spec repo.
 - **Proposal and prototype branches**: only to the user's fork, never to the spec's or wpt's own
-  repo, even if the user can push there; only when a comment links them. If there's no fork,
-  offer to create one (`gh repo fork --remote=false`).
+  repo, even if the user can push there; only when a comment links them. A draft can link
+  them before they exist; push them after the yes, before posting. If there's no fork, offer to
+  create one (`gh repo fork --remote=false`).
 - Never push notes refs.
 
 Right before pushing, confirm each target branch is still at the commit you built on, then
@@ -36,7 +38,7 @@ user owns the comment:
 - Before pushing anything that carries new IDs, refetch the thread. If IDs were posted since
   you numbered your new items, renumber them after the highest, with their branches and the
   trailers of your unpushed commits, and ask again with the change shown.
-- Push what the comment refers to first: name only commits that are on the PR branch.
+- Push what the comment refers to first: call a commit a fix only once it's on the PR branch.
 - After posting, refetch once. If an earlier comment took the same new IDs for other items,
   offer to edit yours to renumber, saying which pushed commits carry the old ID (posted IDs
   win over trailers), and rename your branches for those items (locally, and on the fork by

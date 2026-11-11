@@ -34,8 +34,8 @@ someone other than the PR's author or a decider, ask before pulling that PR in.
 
 - One ledger per PR, keyed by repo and number, with that PR's IDs. Use them unqualified in its
   own thread and qualified elsewhere (`#12756 D3`, `w3c/trusted-types#606 Q1`).
-- An item's owner is the PR where its fix lands. Other threads reference it instead of
-  repeating it.
+- An item's owner is the spec PR where its fix lands, or for a test fix, the spec PR it tests.
+  Other threads reference it instead of repeating it.
 - Deciders are per spec. A decision posted in another PR's thread counts if its author is a
   decider for the owner's spec.
 - Rebuild the ledger of every member that merged while it had items. For each item still open

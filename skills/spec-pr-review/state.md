@@ -22,10 +22,11 @@ same with or without a PR.
   - Review the synced head. Until it's synced, push and post nothing.
 - Find the wpt changes (a spec PR can have several, and one can serve several spec PRs): links
   from the PR author or a decider, or a branch with the same name in the local wpt checkout.
-  Each gets its own working branch. A normative change without tests is a design finding.
+  Each gets its own working branch. A normative change without tests is a defect in the spec
+  PR's ledger, even though its fix lands in wpt.
 - Before running any test from them, list changed files that aren't tests or test resources run
   in the browser (`tools/`, `*.py` handlers, config), and ask: `./wpt run` executes those on
-  this machine.
+  this machine. Files you wrote yourself don't need the ask.
 - If the PR's base branch is another open PR's head branch, or the PR depends on or must land
   together with another open PR, read [`groups.md`](groups.md).
 
@@ -95,8 +96,8 @@ Read every review thread (resolved or not, outdated or not), review body, line c
 top-level comment. For each normative or test concern that isn't already an item:
 
 - if the current head addresses it (a change, or a reply by the author or a decider), note
-  `addressed in <sha>`; it's not an item, and an unresolved thread for it doesn't keep the
-  design phase going;
+  `addressed in <sha>` or the reply's link; what the reply leaves out stays unverified. It's not
+  an item, and an unresolved thread for it doesn't keep the design phase going;
 - if a decider settled it, record the decision;
 - otherwise it's an unverified concern for the design phase, and gets an ID if it holds.
 
@@ -120,7 +121,9 @@ Branches, and the points they fork from, never count.
 
 The "Reviewed at" head is the latest head where every change since the design review was
 either reviewed, applied and checked as a decision ([`decisions.md`](decisions.md)
-§Applying), or verified editorial ([`editorial.md`](editorial.md)). A run that applies
+§Applying), or verified editorial ([`editorial.md`](editorial.md)). Someone else's commit that
+applies a decision is a normative change: review it, scoped to whether it does what was
+decided. A run that applies
 decisions, does an editorial pass, and pushes names the pushed head. Name only a head that's
 on the PR branch (or the user's own branch before a PR); coverage of local commits not pushed
 yet goes in the local record.
