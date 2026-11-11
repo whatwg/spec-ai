@@ -13,8 +13,8 @@
 Name every branch you create `<prefix>spec-review/<key>/<name>`, where `<prefix>` is the user's
 branch prefix if they use one, and `<key>` is `<repo>-<N>` for a PR (e.g. `html-12345`) or the
 local branch name (with `/` replaced by `-`) before there's a PR. A proposal or prototype
-branch's wpt counterpart gets the same name. A wpt PR's own working branch is keyed by that wpt
-PR (`wpt-<N>/fixes`), since one wpt PR can serve several spec PRs.
+branch's wpt counterpart, or a wpt-only fix, gets the same name. A wpt PR's own working branch
+is keyed by that wpt PR (`wpt-<N>/fixes`), since one wpt PR can serve several spec PRs.
 
 - `fixes`: the working branch for someone else's PR;
 - `d<N>`: the proposed fix for defect `D<N>`;
@@ -49,7 +49,7 @@ If a name is taken, add a numeric suffix.
 - Give every commit for a ledger item a `Review-item: <ID>` trailer (`Review-item: Q2 b` on a
   prototype). Later sessions find applied items by it, even after a rebase changes patch IDs.
 - Add a test for every normative spec change, and where possible show that it fails against the
-  old behavior.
+  old behavior. If nothing can observe the change, say so in the item instead.
 - Fix problems in your own unpushed commits with `git commit --fixup`.
 
 ## Finish

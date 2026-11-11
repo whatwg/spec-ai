@@ -22,7 +22,8 @@ same with or without a PR.
   - Review the synced head. Until it's synced, push and post nothing.
 - Find the wpt changes (a spec PR can have several, and one can serve several spec PRs): links
   from the PR author or a decider, or a branch with the same name in the local wpt checkout.
-  Each gets its own working branch. A normative change without tests is a design finding.
+  Each gets its own working branch. A normative change without tests is a defect in the spec
+  PR's ledger, even though its fix lands in wpt.
 - Before running any test from them, list changed files that aren't tests or test resources run
   in the browser (`tools/`, `*.py` handlers, config), and ask: `./wpt run` executes those on
   this machine.
