@@ -69,9 +69,9 @@ Also:
 
 - Backticks in this file only mark templates. In the comment, write SHAs, `#<N>`, and
   `owner/repo#<N>` without backticks, or they don't autolink.
-- Use short SHAs (7 characters) everywhere. Link same-repo commits by short SHA and other
-  repos' commits by full URL, except in the "Reviewed at" line, where they stay unlinked. Link
-  branches only for fixes and options that aren't applied.
+- Use short SHAs (7 characters) everywhere, the "Reviewed at" line included. Link same-repo
+  commits by short SHA and other repos' commits by full URL, but leave the "Reviewed at" line's
+  SHAs unlinked. Link branches only for fixes and options that aren't applied.
 - Include test results only as evidence for an item, such as a browser behaving differently.
 - No behavior delta list, summary of the change, editorial findings, or praise. Address the
   people on the PR and ask; don't instruct the author.
@@ -82,7 +82,7 @@ Also:
   ```
   <details><summary>Reviewed commits</summary>
 
-  Reviewed at <spec sha> on <base sha>, with web-platform-tests/wpt#<N> at <sha>, using spec-pr-review.
+  Reviewed at <spec short sha> on <base short sha>, with web-platform-tests/wpt#<N> at <short sha>, using spec-pr-review.
   </details>
   ```
 
