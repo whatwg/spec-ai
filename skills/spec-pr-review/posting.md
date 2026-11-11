@@ -14,8 +14,8 @@
 
 - **The user's own PR**: the working branch to its PR branch.
 - **Someone else's PR, the user a decider who can push to it** (write access to the spec repo,
-  and the branch is in the spec repo or the PR allows edits by maintainers): ask "Push <n>
-  commits to <PR branch>?", offering a separate PR as the alternative.
+  and the branch is in the spec repo or the PR allows edits by maintainers): ask `Push <n>
+  commits to <PR branch>?`, offering a separate PR as the alternative.
 - **Someone else's PR, otherwise**: offer to push the commits to the user's fork and open a
   separate PR.
 - **Proposal and prototype branches**: only to the user's fork, never to the spec's or wpt's own
@@ -54,11 +54,11 @@ book-keeping, each linking the comments that raised it. For each item:
 - its ID and the problem with a short concrete case; for an item someone else raised, link their
   comments and name them without `@`;
 - its state, in words that can't be mistaken:
-  - "Fixed in <sha>", only for a commit on the PR branch;
-  - "Not applied: proposed fix <link to the fork branch>"; "Open, no fix yet";
-  - "Applied in <sha>, would like confirmation from <people>";
-  - "Kept as is", "Declined", or "Dropped", with the reason in one sentence; "Deferred to
-    #<N>"; "Moved to #<N> Q<M>";
+  - `Fixed in <sha>`, only for a commit on the PR branch;
+  - `Not applied: proposed fix <link to the fork branch>`; "Open, no fix yet";
+  - `Applied in <sha>, would like confirmation from <people>`;
+  - "Kept as is", "Declined", or "Dropped", with the reason in one sentence; `Deferred to
+    #<N>`; `Moved to #<N> Q<M>`;
   - for a question: the question and one line per option, with tradeoffs, prototype links, and
     evidence in a `<details>` under it.
 
@@ -69,9 +69,9 @@ Also:
 - Include test results only as evidence for an item, such as a browser behaving differently.
 - No behavior delta list, summary of the change, editorial findings, or praise. Address the
   people on the PR and ask; don't instruct the author.
-- End with the "Reviewed at" line, collapsed (one "web-platform-tests/wpt#<N> at <sha>" per open wpt
-  PR; for tests already merged, "web-platform-tests/wpt@<sha>" at the commit you ran; none if
-  there are no tests). Keep the blank line, or GitHub doesn't autolink inside:
+- End with the "Reviewed at" line, collapsed (one `web-platform-tests/wpt#<N> at <sha>` per open
+  wpt PR; for tests already merged, `web-platform-tests/wpt@<sha>` at the commit you ran; none
+  if there are no tests). Keep the blank line, or GitHub doesn't autolink inside:
 
   ```
   <details><summary>Reviewed commits</summary>

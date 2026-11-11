@@ -67,4 +67,4 @@ against the default branch; use that (with no recorded base, the PR below's last
 
 One comment per spec PR that has items of its own or decisions that moved, never on members
 without any. Each comment's "Reviewed at" line names that PR's spec and wpt heads, plus
-"together with #<N> at <sha>" for each member it was read with.
+`together with #<N> at <sha>` for each member it was read with.
