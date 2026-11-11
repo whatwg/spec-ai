@@ -64,6 +64,8 @@ book-keeping, each linking the comments that raised it. For each item:
 
 Also:
 
+- Backticks in this file only mark templates. In the comment, write SHAs, `#<N>`, and
+  `owner/repo#<N>` without backticks, or they don't autolink.
 - Link same-repo commits by short SHA and other repos' commits by full URL. Link branches only
   for fixes and options that aren't applied.
 - Include test results only as evidence for an item, such as a browser behaving differently.
