@@ -72,10 +72,10 @@ go in the report's "Not this change's" list, never in a posted comment:
 
 Then:
 
-- **Defect** (D<N>): wrong behavior with one sensible fix, because the intent is clear and only
+- **Defect** (`D<N>`): wrong behavior with one sensible fix, because the intent is clear and only
   one behavior fits it. Write the fix, with its tests, as one commit per repo on its own
   proposal branch ([`git.md`](git.md) §Names), so each can be applied on its own.
-- **Design question** (Q<N>): more than one reasonable behavior, or unclear intent. A fix that
+- **Design question** (`Q<N>`): more than one reasonable behavior, or unclear intent. A fix that
   would change behavior engines agree on is a design question too.
   - Write 2–3 options, including "keep as is" if it's viable.
   - Prototype each option as commits, spec and tests, on its own branch; implementing an
@@ -92,7 +92,7 @@ Then:
 Report in chat. This is for the user; a posted comment is much shorter
 ([`posting.md`](posting.md)).
 
-- The scope, and "Reviewed at <spec sha> on <base sha>, wpt <sha>".
+- The scope, and `Reviewed at <spec sha> on <base sha>, wpt <sha>`.
 - The behavior delta list, briefly.
 - Each new or still-open item: its ID, who raised it, the problem with its concrete case, and
   the proposed commit, or the options with tradeoffs, prototype branches, and what prototyping

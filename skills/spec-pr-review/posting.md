@@ -14,8 +14,8 @@
 
 - **The user's own PR**: the working branch to its PR branch.
 - **Someone else's PR, the user a decider who can push to it** (write access to the spec repo,
-  and the branch is in the spec repo or the PR allows edits by maintainers): ask "Push <n>
-  commits to <PR branch>?", offering a separate PR as the alternative.
+  and the branch is in the spec repo or the PR allows edits by maintainers): ask `Push <n>
+  commits to <PR branch>?`, offering a separate PR as the alternative.
 - **Someone else's PR, otherwise**: offer to push the commits to the user's fork and open a
   separate PR.
 - **Proposal and prototype branches**: only to the user's fork, never to the spec's or wpt's own
@@ -46,34 +46,47 @@ user owns the comment:
   edit it (`gh api -X PATCH repos/<owner>/<repo>/issues/comments/<id>`). Otherwise, or for
   new items that need people's attention, post a new comment.
 
-Content: a short status update, then what needs input. If any item isn't applied, the first
-line says the PR branch doesn't include those fixes yet. Put items first raised in this review at
-the top, labeled as new; items already raised on the thread go after them in a `<details>`, for
-book-keeping, each linking the comments that raised it. For each item:
+Content: a short status update, then what needs input. If a fix isn't on the spec or wpt PR
+branches yet, or a question is open, the first line says which, e.g. "Not applied yet: D1 and
+D2. Open: Q1." Put items first raised in this review at the top; items already raised on the
+thread go after them in a `<details>`, for book-keeping, each linking the comments that raised
+it. When there are both, start the new ones with "New in this review:". For each item:
 
-- its ID and the problem with a short concrete case; for an item someone else raised, link their
-  comments and name them without `@`;
+- the ID with a colon, not bold (e.g. "Q1: …"), and the problem with a short concrete case;
+  for an item someone else raised, link their comments and name them without `@`;
 - its state, in words that can't be mistaken:
-  - "Fixed in <sha>", only for a commit on the PR branch;
-  - "Not applied: proposed fix <link to the fork branch>"; "Open, no fix yet";
-  - "Applied in <sha>, would like confirmation from <people>";
-  - "Kept as is", "Declined", or "Dropped", with the reason in one sentence; "Deferred to
-    #<N>"; "Moved to #<N> Q<M>";
-  - for a question: the question and one line per option, with tradeoffs, prototype links, and
-    evidence in a `<details>` under it.
+  - `Fixed in <sha>`, only for a commit on the PR branch;
+  - `Not applied: proposed fix <link to the fork branch>`; "Open, no fix yet";
+  - `Applied in <sha>, would like confirmation from <people>`;
+  - "Kept as is", "Declined", or "Dropped", with the reason in one sentence; `Deferred to
+    #<N>`; `Moved to #<N> Q<M>`;
+  - for a question: the question and one line per option, with tradeoffs and prototype links,
+    then the evidence in one `<details>` after the options.
 
 Also:
 
-- Link same-repo commits by short SHA and other repos' commits by full URL. Link branches only
-  for fixes and options that aren't applied.
+- Backticks in this file only mark templates. In the comment, write SHAs, `#<N>`, and
+  `owner/repo#<N>` without backticks, or they don't autolink.
+- Use short SHAs (7 characters) everywhere. Link same-repo commits by short SHA and other
+  repos' commits by full URL, except in the "Reviewed at" line, where they stay unlinked. Link
+  branches only for fixes and options that aren't applied.
 - Include test results only as evidence for an item, such as a browser behaving differently.
 - No behavior delta list, summary of the change, editorial findings, or praise. Address the
   people on the PR and ask; don't instruct the author.
-- End with "Reviewed at <spec sha> on <base sha>, with web-platform-tests/wpt#<N> at <sha>,
-  using spec-pr-review." (one "wpt#<N> at <sha>" per open wpt PR; for tests already merged,
-  "web-platform-tests/wpt@<sha>" at the commit you ran; none if there are no tests). Later runs
-  rely on this line; if the user's edit removes it, say so.
-- After a design review that found nothing, offer a one-line comment with just that line.
+- End with the "Reviewed at" line, collapsed (one `web-platform-tests/wpt#<N> at <sha>` per open
+  wpt PR; for tests already merged, `web-platform-tests/wpt@<sha>` at the commit you ran; none
+  if there are no tests). Keep the blank line, or GitHub doesn't autolink inside:
+
+  ```
+  <details><summary>Reviewed commits</summary>
+
+  Reviewed at <spec sha> on <base sha>, with web-platform-tests/wpt#<N> at <sha>, using spec-pr-review.
+  </details>
+  ```
+
+  Later runs rely on this line; if the user's edit removes it, say so.
+- After a design review that found nothing, offer a comment with just "No design issues
+  found." and that `<details>`.
 - In a group, see [`groups.md`](groups.md) §Posting.
 
 ## Shared infra

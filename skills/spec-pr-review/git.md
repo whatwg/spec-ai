@@ -17,8 +17,8 @@ branch's wpt counterpart gets the same name. A wpt PR's own working branch is ke
 PR (`wpt-<N>/fixes`), since one wpt PR can serve several spec PRs.
 
 - `fixes`: the working branch for someone else's PR;
-- `d<N>`: the proposed fix for defect D<N>;
-- `q<N>-<letter>`: option <letter> of question Q<N>.
+- `d<N>`: the proposed fix for defect `D<N>`;
+- `q<N>-<letter>`: option `<letter>` of question `Q<N>`.
 
 If a name is taken, add a numeric suffix.
 

@@ -95,7 +95,7 @@ Read every review thread (resolved or not, outdated or not), review body, line c
 top-level comment. For each normative or test concern that isn't already an item:
 
 - if the current head addresses it (a change, or a reply by the author or a decider), note
-  "addressed in <sha>"; it's not an item, and an unresolved thread for it doesn't keep the
+  `addressed in <sha>`; it's not an item, and an unresolved thread for it doesn't keep the
   design phase going;
 - if a decider settled it, record the decision;
 - otherwise it's an unverified concern for the design phase, and gets an ID if it holds.
@@ -108,9 +108,10 @@ The latest of these, and nothing else:
 
 - a design review in this conversation, which also covers decisions applied and checked since
   ([`decisions.md`](decisions.md) §Applying);
-- a comment ending with this skill's "Reviewed at" line ([`posting.md`](posting.md)), by the
-  user's login or a login with write access to the spec repo (the PR author's only if they
-  have it);
+- a comment ending with this skill's "Reviewed at … using spec-pr-review." line
+  ([`posting.md`](posting.md)), either bare or in a `<details>` at the end (match the line, not
+  the summary), by the user's login or a login with write access to the spec repo (the PR
+  author's only if they have it);
 - the local record;
 - a decider's approving review, at the commit it was given for.
 
@@ -126,7 +127,7 @@ yet goes in the local record.
 
 An approval, or another sign-off such as "LGTM", covers the head it was given at, as is. It
 decides nothing about items open, proposed, or pending at that head: they keep their state, and
-the report says "<login> approved at <sha> while D1 and Q2 weren't applied", so the user can ask
+the report says `<login> approved at <sha> while D1 and Q2 weren't applied`, so the user can ask
 what it covers.
 
 Scope a follow-up review from the last design review's spec and wpt heads:
@@ -146,14 +147,14 @@ Any change the editorial phase wouldn't accept as editorial ([`editorial.md`](ed
 
 A local git note keeps what has no other home: reviews and decisions not yet on a PR,
 outcomes that produce no commit, concerns that didn't hold or were addressed (with link and
-reason), and "Editorial done at <sha>", so a later session neither repeats work nor reopens a
+reason), and `Editorial done at <sha>`, so a later session neither repeats work nor reopens a
 decision.
 
 - Write it at the end of each run that reviewed something, changed the ledger, or did an
   editorial pass, and say so: `git notes --ref=spec-pr-review add -f -F <file> <reviewed spec
   head>`, keeping other keys' sections if that commit already has a note. Each section starts
-  with its key (the PR, as `<repo>#<N>`, or the local branch name), then "Reviewed at <head> on
-  <base>", the wpt heads, and one line per item with its state and record.
+  with its key (the PR, as `<repo>#<N>`, or the local branch name), then `Reviewed at <head> on
+  <base>`, the wpt heads, and one line per item with its state and record.
 - Read it: `git notes --ref=spec-pr-review list`, and take the note with the key on the most
   recent commit; for a new PR with no note yet, the key of the branch it was opened from.
   Decisions in it are settled for the user's own runs, but unrecorded for the PR until they're

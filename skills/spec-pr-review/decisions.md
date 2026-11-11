@@ -41,7 +41,7 @@ only items the user has seen in this conversation's briefing or list.
   normative text or tests, see [`git.md`](git.md) §Proposal and prototype branches.
 - Set the `Review-item:` trailer to the item's ID, and offer to add the decider's reason for
   this option over the others to the message body; that records the decision.
-- With a PR, keep one commit per item, so each can be cited as "Fixed in <sha>", and offer to
+- With a PR, keep one commit per item, so each can be cited as `Fixed in <sha>`, and offer to
   squash related small fixes that don't need separate review into one commit with all their
   trailers. Before a PR, they're combined at finish ([`git.md`](git.md) §Finish).
 - Outcomes without a commit (keep as is, declined, deferred, dropped) go in the local record
