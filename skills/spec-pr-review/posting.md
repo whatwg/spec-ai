@@ -69,9 +69,9 @@ Also:
 - Include test results only as evidence for an item, such as a browser behaving differently.
 - No behavior delta list, summary of the change, editorial findings, or praise. Address the
   people on the PR and ask; don't instruct the author.
-- End with the "Reviewed at" line, collapsed (one "wpt#<N> at <sha>" per open wpt PR; for tests
-  already merged, "web-platform-tests/wpt@<sha>" at the commit you ran; none if there are no
-  tests). Keep the blank line, or GitHub doesn't autolink inside:
+- End with the "Reviewed at" line, collapsed (one "web-platform-tests/wpt#<N> at <sha>" per open wpt
+  PR; for tests already merged, "web-platform-tests/wpt@<sha>" at the commit you ran; none if
+  there are no tests). Keep the blank line, or GitHub doesn't autolink inside:
 
   ```
   <details><summary>Reviewed commits</summary>
