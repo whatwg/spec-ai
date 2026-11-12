@@ -12,7 +12,7 @@ AI tooling and agent skills for working with WHATWG standards.
 
   Also includes [`html-style-guide.md`](skills/html-spec-review/html-style-guide.md), a de-facto house style guide for the HTML Standard's `source` with stable rule IDs, spec examples, and Modern/Accepted/Legacy/Obsolete rankings where the spec uses competing styles.
 
-- **[`spec-pr-review`](skills/spec-pr-review/SKILL.md)**: Reviews a WHATWG spec change (a PR, a stack or group of PRs, or a local branch before a PR exists) together with its [web-platform-tests](https://github.com/web-platform-tests/wpt) changes, in two phases. It works out what to do from the PR thread, commit messages, a local git note, and the conversation, and doesn't reopen recorded decisions. PR content is treated as untrusted input, only the PR author and spec editors decide, and nothing is pushed or posted without the user's approval for that action.
+- **[`spec-pr-review`](skills/spec-pr-review/SKILL.md)** ([guide](docs/spec-pr-review.md)): Reviews a WHATWG spec change (a PR, a stack or group of PRs, or a local branch before a PR exists) together with its [web-platform-tests](https://github.com/web-platform-tests/wpt) changes, in two phases. It works out what to do from the PR thread, commit messages, a local git note, and the conversation, and doesn't reopen recorded decisions. PR content is treated as untrusted input, only the PR author and spec editors decide, and nothing is pushed or posted without the user's approval for that action.
   - [Design phase](skills/spec-pr-review/design.md): one focused pass over behavior, normative text, and test correctness. Design questions get options prototyped as commits, for humans to [decide](skills/spec-pr-review/decisions.md).
   - [Editorial phase](skills/spec-pr-review/editorial.md): once the design is settled, a bounded editorial review and fix loop, verified not to change normative behavior, with the help of [`check_normative_invariants.py`](skills/spec-pr-review/scripts/check_normative_invariants.py) for spec sources and wpt results.
   - Posted comments are short status updates the user edits before posting; see [`posting.md`](skills/spec-pr-review/posting.md).
@@ -21,11 +21,9 @@ AI tooling and agent skills for working with WHATWG standards.
 
 `spec-pr-review` is the review flow: design first, decisions by humans, then editorial, and what to surface when. For whatwg/html changes it uses `html-spec-review` for the HTML specifics; its `[design]` and `[editorial]` tags say which phase checks each rule. `html-spec-review` also works on its own for writing or reading HTML spec text.
 
-The flow works the same for a PR author self-reviewing or applying suggested edits, an editor reviewing, or anyone else reviewing or contributing fixes.
+Review items get IDs (D1 for defects, Q1 for design questions). Posted comments and `Review-item:` commit trailers make them public, so anyone's next run rebuilds the same state from the PR, including for [stacks and groups of PRs](skills/spec-pr-review/groups.md), and doesn't reopen what's settled.
 
-Review items get IDs (D1 for defects, Q1 for design questions) and states (open, proposed, decided, deferred, …). Posted comments and `Review-item:` commit trailers make them public, so anyone's next run rebuilds the same ledger from the PR and doesn't reopen what's settled. This extends to [stacks and groups of PRs](skills/spec-pr-review/groups.md), also across repos, such as related Trusted Types and HTML PRs.
-
-Using it is optional. One person using `spec-pr-review` doesn't mean anyone else has to: its comments are ordinary PR comments, and it reads human reviews and replies as input like any other.
+To get started, or to respond to a review on your PR without using the skill, see the [`spec-pr-review` guide](docs/spec-pr-review.md).
 
 Both skills jot notes in `~/.local/state/skill-improvement/spec-ai.md` when their guidance proves wrong or costs time, and may offer a PR here once the work they came from is public, following [`build-tooling`](https://github.com/zcorpan/agent-tooling)'s `improve.md`. Saying "don't ask again" lists the skill in `~/.config/skill-improvement/opt-out`, which turns this off in every project until you remove the line.
 
