@@ -60,10 +60,12 @@ design first, editorial once the design is settled.
    the user's decisions are needed, or when items wait on someone else (then list who). Items
    the user left open or chose not to apply this run wait on the user. Items applied but
    awaiting others' confirmation don't block. If no step applies, say there's nothing to do.
-4. Finish ([`git.md`](git.md) §Finish), report, and offer pushes and posts
-   ([`posting.md`](posting.md)). When stopping for the user's decisions, offer the post after
-   they reply, even if they leave everything open; what they leave open is posted as open
-   questions or not-applied fixes.
+4. Wait until every agent and test run you started has reported and its findings are verified;
+   check their status rather than relying on a notification. A briefing written before then
+   says what's still running and isn't final. Then finish ([`git.md`](git.md) §Finish), report,
+   and offer pushes and posts ([`posting.md`](posting.md)). When stopping for the user's
+   decisions, offer the post after they reply, even if they leave everything open; what they
+   leave open is posted as open questions or not-applied fixes.
 
 Overrides: "design only" or "spec design review" (no editorial phase); "editorial only" or "spec
 editorial review" (skip the design steps and say which items are still open); "editorial first"
