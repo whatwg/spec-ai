@@ -7,6 +7,8 @@
 - A yes covers only what was listed when it was given. Branches or commits created later,
   another target, or changed comment text need a new yes. A "push" or "post" in the user's
   request covers only the targets and content it names.
+- Push, post, and draft nothing while an agent or test run you started is still running, even
+  if the user asks: say which are, and wait for them.
 - Ask in one line where you can, e.g. "Push 3 commits (abc1234..def5678) to `foo` on
   `whatwg/html` (#123)?"
 
@@ -20,9 +22,10 @@
   separate PR.
 - A wpt PR goes by the same cases, with write access to wpt in place of the spec repo.
 - **Proposal and prototype branches**: only to the user's fork, never to the spec's or wpt's own
-  repo, even if the user can push there; only when a comment links them. A draft can link
-  them before they exist; push them after the yes, before posting. If there's no fork, offer to
-  create one (`gh repo fork --remote=false`).
+  repo, even if the user can push there; only when a comment links them. When offering a
+  comment with fixes or options not applied, ask whether to push and link their branches or
+  post without them. A draft can link them before they exist; push them after the yes, before
+  posting. If there's no fork, offer to create one (`gh repo fork --remote=false`).
 - Never push notes refs.
 
 Right before pushing, confirm each target branch is still at the commit you built on, then
@@ -58,7 +61,8 @@ it. When there are both, start the new ones with "New in this review:". For each
   for an item someone else raised, link their comments and name them without `@`;
 - its state, in words that can't be mistaken:
   - `Fixed in <sha>`, only for a commit on the PR branch;
-  - `Not applied: proposed fix <link to the fork branch>`; "Open, no fix yet";
+  - `Not applied: proposed fix <link to the fork branch>`, or without branches `Not applied:
+    suggested fix: <what it changes, in one sentence>`; "Open, no fix yet";
   - `Applied in <sha>, would like confirmation from <people>`;
   - "Kept as is", "Declined", or "Dropped", with the reason in one sentence; `Deferred to
     #<N>`; `Moved to #<N> Q<M>`;
@@ -71,10 +75,12 @@ Also:
   `owner/repo#<N>` without backticks, or they don't autolink.
 - Use short SHAs (7 characters) everywhere, the "Reviewed at" line included. Link same-repo
   commits by short SHA and other repos' commits by full URL, but leave the "Reviewed at" line's
-  SHAs unlinked. Link branches only for fixes and options that aren't applied.
+  SHAs unlinked. Link branches only for fixes and options that aren't applied, once pushed.
+- Without branches, don't mention branches, prototypes, forks, or commits not on a PR branch;
+  give what prototyping revealed as tradeoffs.
 - Include test results only as evidence for an item, such as a browser behaving differently.
-- No behavior delta list, summary of the change, editorial findings, or praise. Address the
-  people on the PR and ask; don't instruct the author.
+- No behavior delta list, summary of the change, editorial findings, cleanup, local paths, or
+  praise. Address the people on the PR and ask; don't instruct the author.
 - End with the "Reviewed at" line, collapsed (one `web-platform-tests/wpt#<N> at <sha>` per open
   wpt PR; for tests already merged, `web-platform-tests/wpt@<sha>` at the commit you ran; none
   if there are no tests). Keep the blank line, or GitHub doesn't autolink inside:
