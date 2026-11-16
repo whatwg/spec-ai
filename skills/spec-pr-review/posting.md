@@ -61,8 +61,9 @@ it. When there are both, start the new ones with "New in this review:". For each
   for an item someone else raised, link their comments and name them without `@`;
 - its state, in words that can't be mistaken:
   - `Fixed in <sha>`, only for a commit on the PR branch;
-  - `Not applied: proposed fix <link to the fork branch>`, or without branches `Not applied:
-    suggested fix: <what it changes, in one sentence>`; "Open, no fix yet";
+  - `Not applied: [proposed fix](https://github.com/<fork>/tree/<branch>)`, or without
+    branches `Not applied: suggested fix: <what it changes, in one sentence>`; "Open, no fix
+    yet";
   - `Applied in <sha>, would like confirmation from <people>`;
   - "Kept as is", "Declined", or "Dropped", with the reason in one sentence; `Deferred to
     #<N>`; `Moved to #<N> Q<M>`;
@@ -71,8 +72,11 @@ it. When there are both, start the new ones with "New in this review:". For each
 
 Also:
 
-- Backticks in this file only mark templates. In the comment, write SHAs, `#<N>`, and
-  `owner/repo#<N>` without backticks, or they don't autolink.
+- Backticks in this file only mark templates. In the comment, backtick code: element and
+  attribute names (a bare `<a>` renders as HTML and vanishes), IDL, values, and file names. Write
+  SHAs, `#<N>`, and `owner/repo#<N>` without backticks, or they don't autolink.
+- Give links short Markdown text instead of a bare URL, e.g. `[proposed fix](<URL>)` or
+  `[option b](<URL>)`. Commit URLs, which GitHub shortens, stay bare.
 - Use short SHAs (7 characters) everywhere, the "Reviewed at" line included. Link same-repo
   commits by short SHA and other repos' commits by full URL, but leave the "Reviewed at" line's
   SHAs unlinked. Link branches only for fixes and options that aren't applied, once pushed.
