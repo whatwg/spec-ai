@@ -46,8 +46,8 @@ only items the user has seen in this conversation's briefing or list.
   trailers. Before a PR, they're combined at finish ([`git.md`](git.md) §Finish).
 - Outcomes without a commit (keep as is, declined, deferred, dropped) go in the local record
   and, with a PR, in the next comment ([`posting.md`](posting.md)).
-- Have one fresh agent check the applied commits against the delta list, and rerun the affected
-  tests. Fix problems in your own commits with fixups ([`git.md`](git.md)); anything that needs
-  a decision is a new item.
+- Have one fresh agent check the applied commits against the delta list (reporting only problems
+  the commits introduce or leave unfixed), and rerun the affected tests. Fix problems in your own
+  commits with fixups ([`git.md`](git.md)); anything that needs a decision is a new item.
 - Update the ledger, then continue with the flow in [`SKILL.md`](SKILL.md); with nothing open or
   proposed, that's the editorial phase, in the same run.
