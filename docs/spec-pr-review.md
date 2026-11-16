@@ -33,8 +33,10 @@ question.
 
 The skill tells *deciders* apart from everyone else. Deciders are the PR's author and the spec's
 editors. For the skill, an editor is anyone with write access (write, maintain, or admin) to the
-spec repo. When a decider answers, that's a decision; anyone else's answer is a proposal. Until an
-editor agrees, an author's decisions can still be questioned if the author isn't an editor too.
+spec repo. When a decider answers, that's a decision, and later reviews raise it again only with
+new evidence. Anyone else's answer is a proposal. If the author isn't an editor, other people's
+reviews may also question the author's decisions for a substantive problem, until an editor
+agrees.
 
 ### Editor reviewing someone else's PR
 
@@ -103,7 +105,7 @@ Steer along the way if its choices aren't what you want.
 - Local checkouts of the spec and of web-platform-tests/wpt. For whatwg/html, also
   [whatwg/html-build](https://github.com/whatwg/html-build) next to it, for lint and build (it needs
   Docker or a local Wattsi).
-- Git 2.45 or later, and Python 3.
+- Git 2.45 or later (for `git rebase --empty=stop`), and Python 3.
 - Browsers to run the tests in with `./wpt run`, such as Chrome Canary, Firefox Nightly, or Safari
   Technology Preview: one that implements the feature and one that doesn't. wpt needs
   [some setup](https://web-platform-tests.org/running-tests/from-local-system.html) first (hosts
@@ -126,7 +128,10 @@ tokens. The editorial pass and follow-up reviews are smaller.
   the only code from the PR it runs is the tests. That lowers the risk; it doesn't remove it. It
   asks before running changed files that aren't tests, since `./wpt run` executes them on your
   machine.
-- It never approves a PR or requests changes.
+- The skill tells the agent to ask before each push and post, and never to approve a PR or
+  request changes. Nothing enforces that beyond your agent's own permission prompts, so keep
+  those on for `git push` and `gh`. If your setup doesn't let it push or post (permission
+  rules, a read-only token), it gives you the commands to run yourself.
 - When a public review shows something the skill got wrong, the agent may offer a PR to improve
   it. Say "don't ask again" to turn that off.
 
