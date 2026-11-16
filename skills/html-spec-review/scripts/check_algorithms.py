@@ -149,8 +149,18 @@ class AlgorithmAnalyzer:
 
         lines = block_text.split('\n')
         list_depth = 0
+        ul_depth = 0
         branch_declared_vars: Dict[str, int] = {}  # var_name -> decl_line_no for depth >= 2
         let_declared_vars: Dict[str, int] = {}     # var_name -> decl_line_no for unused var check
+
+        let_decl_pattern = re.compile(
+            r'\b(?P<kw>Let|let)\s+(?P<lhs>(?:\(\s*)?<var(?:\s+[^>]*)?>[^<]+</var>'
+            r'(?:\s*(?:,\s*(?:and\s+)?|and\s+)<var(?:\s+[^>]*)?>[^<]+</var>)*(?:\s*\))?)\s+be\b'
+        )
+        let_matches_by_line: Dict[int, List[re.Match]] = {}
+        for let_m in let_decl_pattern.finditer(block_text):
+            start_idx = block_text[:let_m.start()].count('\n')
+            let_matches_by_line.setdefault(start_idx, []).append(let_m)
 
         for idx, line in enumerate(lines):
             line_no = block_start_line + idx
@@ -158,7 +168,10 @@ class AlgorithmAnalyzer:
             # Update list depth
             ol_opens = len(re.findall(r'<ol\b', line, re.IGNORECASE))
             ol_closes = len(re.findall(r'</ol>', line, re.IGNORECASE))
+            ul_opens = len(re.findall(r'<ul\b', line, re.IGNORECASE))
+            ul_closes = len(re.findall(r'</ul>', line, re.IGNORECASE))
             list_depth += ol_opens
+            ul_depth += ul_opens
 
             # --- Check: Infra List Iteration Syntax ('of' not 'in') ---
             if re.search(r'\bFor each\s+(?:<var>\w+</var>|\w+)\s+in\b', line, re.IGNORECASE):
@@ -202,13 +215,15 @@ class AlgorithmAnalyzer:
                 ))
 
             # --- Rule 4: Variable lifecycle ('Let' vs. 'Set') ---
-            if re.search(r'\bLet\s+', line):
-                let_var_matches = re.finditer(r'<var(?:\s+[^>]*)?>(\w+)</var>', line)
-                for m in let_var_matches:
-                    var_name = m.group(1)
-                    is_ignored = bool(re.search(rf'<var\s+ignore[^>]*>{var_name}</var>', line))
+            for let_m in let_matches_by_line.get(idx, []):
+                is_capital_let = let_m.group("kw") == "Let"
+                lhs = let_m.group("lhs")
+                for m in re.finditer(r'<var(\s+[^>]*)?>(\w+)</var>', lhs):
+                    attrs = m.group(1) or ""
+                    var_name = m.group(2)
+                    is_ignored = bool(re.search(r'\bignore\b', attrs))
 
-                    if var_name in declared_vars:
+                    if is_capital_let and var_name in declared_vars:
                         self.issues.append(AlgorithmIssue(
                             filename, line_no, "ALGO-DUPLICATE-LET",
                             f"Variable '<var>{var_name}</var>' is re-declared with 'Let'. Use 'Set <var>{var_name}</var> to' for reassignments, or rename if a distinct variable was intended.",
@@ -250,8 +265,8 @@ class AlgorithmAnalyzer:
                             ))
                             del branch_declared_vars[b_var]
 
-            # Terminal punctuation check for leaf steps (<li><p>...</p></li>)
-            leaf_step_match = re.search(r'<li>\s*<p>(.*?)</p>\s*</li>', line)
+            # Terminal punctuation check for leaf steps (<li><p>...</p></li>) in <ol>
+            leaf_step_match = ul_depth == 0 and re.search(r'<li>\s*<p>(.*?)</p>\s*</li>', line)
             if leaf_step_match:
                 inner_text = leaf_step_match.group(1)
                 clean_text = re.sub(r'<[^>]+>', '', inner_text).strip()
@@ -263,6 +278,7 @@ class AlgorithmAnalyzer:
                     ))
 
             list_depth -= ol_closes
+            ul_depth = max(0, ul_depth - ul_closes)
 
         # --- Check: Unused Variables ---
         for var_name, decl_line in let_declared_vars.items():
