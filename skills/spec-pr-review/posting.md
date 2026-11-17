@@ -22,10 +22,11 @@
   separate PR.
 - A wpt PR goes by the same cases, with write access to wpt in place of the spec repo.
 - **Proposal and prototype branches**: only to the user's fork, never to the spec's or wpt's own
-  repo, even if the user can push there; only when a comment links them. When offering a
-  comment with fixes or options not applied, ask whether to push and link their branches or
-  post without them. A draft can link them before they exist; push them after the yes, before
-  posting. If there's no fork, offer to create one (`gh repo fork --remote=false`).
+  repo, even if the user can push there; only when a comment links their commits. When
+  offering a comment with fixes or options not applied, ask whether to push their branches and
+  link their commits or post without them. A draft can link them before they're pushed; push
+  them after the yes, before posting. If there's no fork, offer to create one (`gh repo fork
+  --remote=false`).
 - Never push notes refs.
 
 Right before pushing, confirm each target branch is still at the commit you built on, then
@@ -61,7 +62,7 @@ it. When there are both, start the new ones with "New in this review:". For each
   for an item someone else raised, link their comments and name them without `@`;
 - its state, in words that can't be mistaken:
   - `Fixed in <sha>`, only for a commit on the PR branch;
-  - `Not applied: [proposed fix](https://github.com/<fork>/tree/<branch>)`, or without
+  - `Not applied: [proposed fix](https://github.com/<fork>/commit/<sha>)`, or without
     branches `Not applied: suggested fix: <what it changes, in one sentence>`; "Open, no fix
     yet";
   - `Applied in <sha>, would like confirmation from <people>`;
@@ -76,10 +77,14 @@ Also:
   attribute names (a bare `<a>` renders as HTML and vanishes), IDL, values, and file names. Write
   SHAs, `#<N>`, and `owner/repo#<N>` without backticks, or they don't autolink.
 - Give links short Markdown text instead of a bare URL, e.g. `[proposed fix](<URL>)` or
-  `[option b](<URL>)`. Commit URLs, which GitHub shortens, stay bare.
+  `[option b](<URL>)`. Commit URLs, which GitHub shortens, stay bare, except for fixes and
+  options.
 - Use short SHAs (7 characters) everywhere, the "Reviewed at" line included. Link same-repo
   commits by short SHA and other repos' commits by full URL, but leave the "Reviewed at" line's
-  SHAs unlinked. Link branches only for fixes and options that aren't applied, once pushed.
+  SHAs unlinked.
+- Link a fix or option that isn't applied by its commit on the fork, once pushed, never by its
+  branch, which moves: one link per repo (e.g. `option b: [spec](<URL>), [test](<URL>)`), and for
+  several commits the compare view `https://github.com/<fork>/compare/<base sha>...<head sha>`.
 - Without branches, don't mention branches, prototypes, forks, or commits not on a PR branch;
   give what prototyping revealed as tradeoffs.
 - Include test results only as evidence for an item, such as a browser behaving differently.
