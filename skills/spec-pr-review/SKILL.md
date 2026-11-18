@@ -74,8 +74,8 @@ editorial review" (skip the design steps and say which items are still open); "e
 
 ## Improving the skill
 
-- Skip this section if `~/.config/skill-improvement/opt-out` lists `spec-pr-review`. Each offer
-  says that "don't ask again" adds it there, and removing the line turns this back on.
+- Skip this section if `~/.config/skill-improvement/opt-out` lists `spec-pr-review`. For offers
+  and reminders, follow `improve.md` §Opt-in and opt-out.
 - Jot notes in `~/.local/state/skill-improvement/spec-ai.md` as things come up, one line each
   (skill and section, what happened): a rule that picked the wrong step, misread the thread or
   ledger, or was unclear; a check script's false positive or miss; a lookup the skill could have
