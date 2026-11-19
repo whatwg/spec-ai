@@ -534,7 +534,7 @@ python3 scripts/check_webidl.py path/to/source.html
 
 ### 15.2. Algorithm Prose & Lifecycle Analyzer (`check_algorithms.py`) `[editorial]`
 Validates algorithm steps inside `<div algorithm>` blocks and spec markup:
-- **Rule 4 (ALGO-UNDECLARED-SET / ALGO-DUPLICATE-LET)**: Validates variable lifecycle. Flags `Set <var>x</var> to` when `<var>x</var>` was never introduced with `Let`, and flags duplicate `Let <var>x</var> be` declarations in the same algorithm.
+- **Rule 4 (ALGO-UNDECLARED-SET / ALGO-DUPLICATE-LET)**: Validates variable lifecycle. Flags `Set <var>x</var> to` when `<var>x</var>` was never introduced with `Let`, and flags duplicate `Let <var>x</var> be` declarations in the same algorithm, including a lowercase `let <var>x</var> be` in a later step that reassigns an outer-scope variable or parameter.
 - **ALGO-UNBOUND-VAR-OUTER-SCOPE**: Flags variables declared with `Let` inside conditional sub-steps (`<ol>` depth >= 2) that are subsequently referenced at outer scope without an outer declaration.
 - **ALGO-UNUSED-VAR**: Flags variables declared with `Let` that are never read/referenced again in the algorithm and omit `<var ignore>`.
 - **ALGO-LIST-OF**: Flags `For each <var>x</var> in ...` (Infra list iteration requires `of`, not `in`).

@@ -7,7 +7,8 @@ Checks algorithm blocks (<div algorithm>) in HTML spec sources or diffs:
    - First declaration must be 'Let <var>x</var> be'.
    - Reassignment must be 'Set <var>x</var> to'.
    - Detects undeclared 'Set <var>x</var> to'.
-   - Detects duplicate 'Let <var>x</var> be' declarations in the same scope.
+   - Detects duplicate 'Let <var>x</var> be' declarations in the same scope, and lowercase
+     'let <var>x</var> be' in a later step reassigning an outer-scope variable or parameter.
 2. Dictionary Type Checking in Algorithms (Untyped Infra Map):
    - Prohibits checking 'If <var>x</var> is a <code>SomeOptions/Init/Config</code>'.
 3. Standard Namespace Casing:
@@ -163,6 +164,8 @@ class AlgorithmAnalyzer:
         closure_scopes: List[list] = []
         # Per open <ol>: True if its steps don't branch (so they share the enclosing scope)
         ol_stack: List[bool] = []
+
+        last_let_pos: Dict[str, int] = {}  # var_name -> offset in block_text of its last 'Let'/'let'
 
         def is_declared(v: str) -> bool:
             return v in declared_vars or any(e[2] == v for e in closure_scopes)
@@ -321,13 +324,24 @@ class AlgorithmAnalyzer:
                         and list_depth > conditional_inline_depth[var_name]
                         and uncond_decl_depth.get(var_name, 999) > conditional_inline_depth[var_name]
                     )
-                    if is_capital_let and is_declared(var_name) and not skip_duplicate:
+                    # Lowercase 'let' re-declaring an outer-scope variable or parameter, outside an
+                    # inline 'if ..., let x ...; otherwise, let x ...' pair and outside the step that
+                    # declared it ('Let x be A if ...; otherwise let x be B', '... catch it and let x be')
+                    is_lower_redeclaration = (
+                        not is_capital_let
+                        and uncond_decl_depth.get(var_name, 999) <= 1
+                        and var_name not in conditional_inline_depth
+                        and block_text.find('<li', last_let_pos.get(var_name, 0), let_m.start()) != -1
+                    )
+                    if ((is_capital_let and is_declared(var_name) and not skip_duplicate)
+                            or is_lower_redeclaration):
                         self.issues.append(AlgorithmIssue(
                             filename, line_no, "ALGO-DUPLICATE-LET",
                             f"Variable '<var>{var_name}</var>' is re-declared with 'Let'. Use 'Set <var>{var_name}</var> to' for reassignments, or rename if a distinct variable was intended.",
                             line
                         ))
                     declared_vars.add(var_name)
+                    last_let_pos[var_name] = let_m.start()
 
                     if is_cond_if:
                         inline_if_depth[var_name] = list_depth
