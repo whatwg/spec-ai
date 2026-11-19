@@ -159,6 +159,13 @@ class AlgorithmAnalyzer:
         let_declared_vars: Dict[str, int] = {}     # var_name -> decl_line_no for unused var check
         conditional_inline_depth: Dict[str, int] = {}
         inline_if_depth: Dict[str, int] = {}
+        # Closure parameters, in scope only inside the closure's sub-steps: [decl_depth, entered, var]
+        closure_scopes: List[list] = []
+        # Per open <ol>: True if its steps don't branch (so they share the enclosing scope)
+        ol_stack: List[bool] = []
+
+        def is_declared(v: str) -> bool:
+            return v in declared_vars or any(e[2] == v for e in closure_scopes)
 
         line_offsets: List[int] = []
         curr_offset = 0
@@ -194,6 +201,13 @@ class AlgorithmAnalyzer:
         for fe_m in for_each_pattern.finditer(block_text):
             binding_spans.append((fe_m.start("lhs"), fe_m.end("lhs")))
 
+        ol_non_branch: List[bool] = []
+        for ol_m in re.finditer(r'<ol\b', block_text, re.IGNORECASE):
+            p_start = max(block_text.rfind('<p>', 0, ol_m.start()), block_text.rfind('<p ', 0, ol_m.start()))
+            intro = block_text[p_start:ol_m.start()] if p_start != -1 else ''
+            ol_non_branch.append(bool(re.search(r'\bwhile catching any exceptions\s*:', intro)))
+        ol_index = 0
+
         closure_vars_by_line: Dict[int, List[str]] = {}
         for cp_m in closure_param_pattern.finditer(block_text):
             grp = "p1" if cp_m.group("p1") is not None else "p2"
@@ -212,6 +226,10 @@ class AlgorithmAnalyzer:
             ul_closes = len(re.findall(r'</ul>', line, re.IGNORECASE))
             list_depth += ol_opens
             ul_depth += ul_opens
+            for _ in range(ol_opens):
+                ol_stack.append(ol_non_branch[ol_index] if ol_index < len(ol_non_branch) else False)
+                ol_index += 1
+            scope_depth = len(ol_stack) - sum(ol_stack)
             for div_m in re.finditer(r'<div\b[^>]*>', line, re.IGNORECASE):
                 div_note_stack.append(bool(re.search(r'\bclass="(?:note|example|warning)"', div_m.group(0), re.IGNORECASE)))
             if re.search(r'<p\b[^>]*\bclass="(?:note|example|warning)"', line, re.IGNORECASE):
@@ -220,7 +238,10 @@ class AlgorithmAnalyzer:
                 switch_dl_stack.append(bool(re.search(r'\bclass="switch"', dl_m.group(0), re.IGNORECASE)))
 
             for c_var in closure_vars_by_line.get(idx, []):
-                declared_vars.add(c_var)
+                closure_scopes.append([list_depth, False, c_var])
+            for e in closure_scopes:
+                if list_depth > e[0]:
+                    e[1] = True
 
             # --- Check: Infra List Iteration Syntax ('of' not 'in') ---
             if re.search(r'\bFor each\s+(?:<var>\w+</var>|\w+)\s+in\b', line, re.IGNORECASE):
@@ -265,7 +286,7 @@ class AlgorithmAnalyzer:
 
             # Check: Outer scope referencing branch-scoped variable
             in_non_normative = in_p_note or any(div_note_stack)
-            if list_depth <= 1 and not in_non_normative and branch_declared_vars:
+            if scope_depth <= 1 and not in_non_normative and branch_declared_vars:
                 l_off = line_offsets[idx]
                 for vm in re.finditer(r'<var(?:\s+[^>]*)?>(\w+)</var>', line):
                     b_var = vm.group(1)
@@ -300,7 +321,7 @@ class AlgorithmAnalyzer:
                         and list_depth > conditional_inline_depth[var_name]
                         and uncond_decl_depth.get(var_name, 999) > conditional_inline_depth[var_name]
                     )
-                    if is_capital_let and var_name in declared_vars and not skip_duplicate:
+                    if is_capital_let and is_declared(var_name) and not skip_duplicate:
                         self.issues.append(AlgorithmIssue(
                             filename, line_no, "ALGO-DUPLICATE-LET",
                             f"Variable '<var>{var_name}</var>' is re-declared with 'Let'. Use 'Set <var>{var_name}</var> to' for reassignments, or rename if a distinct variable was intended.",
@@ -316,7 +337,7 @@ class AlgorithmAnalyzer:
                     else:
                         uncond_decl_depth[var_name] = min(uncond_decl_depth.get(var_name, list_depth), list_depth)
                         conditional_inline_depth.pop(var_name, None)
-                        if list_depth <= 1:
+                        if scope_depth <= 1:
                             outer_declared_vars.add(var_name)
                         elif var_name not in outer_declared_vars:
                             branch_declared_vars[var_name] = line_no
@@ -329,7 +350,7 @@ class AlgorithmAnalyzer:
             set_matches = re.finditer(r'\bSet\s+<var>(\w+)</var>\s+to\b', line)
             for m in set_matches:
                 var_name = m.group(1)
-                if var_name not in declared_vars:
+                if not is_declared(var_name):
                     self.issues.append(AlgorithmIssue(
                         filename, line_no, "ALGO-UNDECLARED-SET",
                         f"Variable '<var>{var_name}</var>' is mutated with 'Set' before being declared with 'Let'. Every variable must first be introduced via 'Let <var>{var_name}</var> be'.",
@@ -351,6 +372,10 @@ class AlgorithmAnalyzer:
 
             list_depth -= ol_closes
             ul_depth = max(0, ul_depth - ul_closes)
+            for _ in range(ol_closes):
+                if ol_stack:
+                    ol_stack.pop()
+            closure_scopes = [e for e in closure_scopes if not (e[1] and list_depth <= e[0])]
             for _ in re.findall(r'</div>', line, re.IGNORECASE):
                 if div_note_stack:
                     div_note_stack.pop()
