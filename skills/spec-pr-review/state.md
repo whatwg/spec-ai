@@ -164,3 +164,5 @@ decision.
   Decisions in it are settled for the user's own runs, but unrecorded for the PR until they're
   in a comment or a commit message.
 - With a PR, posted comments come first; the note holds the rest.
+- Notes refs aren't copied into `git clone --shared` clones: read and write the note only in the
+  user's spec checkout.
