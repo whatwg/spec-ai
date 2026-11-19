@@ -70,7 +70,29 @@ def _ensure_git_excluded(output_dir):
         print(f"Warning: could not update {exclude_path}: {exc}", file=sys.stderr)
 
 
-def split_file(file_path):
+def _has_unconcatenated_edits(split_dir, content):
+    """True if split_dir's files match neither the hash recorded at split/concat nor content."""
+    if not os.path.isdir(split_dir):
+        return False
+    files = sorted(f for f in os.listdir(split_dir) if f.endswith('.html'))
+    if not files:
+        return False
+    chunks = []
+    for f in files:
+        with open(os.path.join(split_dir, f), 'r', encoding='utf-8') as infile:
+            chunks.append(infile.read())
+    combined = ''.join(chunks)
+    if combined == content:
+        return False
+    hash_path = os.path.join(split_dir, SOURCE_HASH_FILE)
+    if os.path.isfile(hash_path):
+        with open(hash_path, 'r', encoding='utf-8') as f:
+            if _hash_text(combined) == f.read().strip():
+                return False
+    return True
+
+
+def split_file(file_path, force=False):
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
 
@@ -81,6 +103,22 @@ def split_file(file_path):
 
     base_dir = os.path.dirname(os.path.abspath(file_path))
     output_dir = os.path.join(base_dir, 'split_source')
+    if not force and _has_unconcatenated_edits(output_dir, content):
+        hash_path = os.path.join(output_dir, SOURCE_HASH_FILE)
+        source_unchanged = False
+        if os.path.isfile(hash_path):
+            with open(hash_path, 'r', encoding='utf-8') as f:
+                source_unchanged = f.read().strip() == _hash_text(content)
+        if source_unchanged:
+            hint = "run 'concat' first"
+        else:
+            hint = f"{file_path} has also changed since, so carry them over by hand"
+        print(
+            f"Error: {output_dir} has edits not concatenated into {file_path}; "
+            f"{hint}, or pass --force to discard them.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
     os.makedirs(output_dir, exist_ok=True)
     _ensure_git_excluded(output_dir)
 
@@ -132,8 +170,9 @@ def concat_files(file_path):
             current_hash = _hash_text(f.read())
         if current_hash != expected_hash:
             print(
-                f"Error: {file_path} has changed since {split_dir} was generated; "
-                "re-run 'split' before editing and concatenating.",
+                f"Error: {file_path} has changed since {split_dir} was generated. "
+                f"{split_dir} still has any edits made there; 'split' won't "
+                "overwrite them unless given --force, which discards them.",
                 file=sys.stderr,
             )
             sys.exit(1)
@@ -152,15 +191,17 @@ def concat_files(file_path):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print("Usage: python3 split_html.py <split|concat> <file_path>")
+    args = [a for a in sys.argv[1:] if a != '--force']
+    force = len(args) != len(sys.argv) - 1
+    if len(args) < 2:
+        print("Usage: python3 split_html.py <split [--force]|concat> <file_path>")
         sys.exit(1)
 
-    action = sys.argv[1]
-    file_path = sys.argv[2]
+    action = args[0]
+    file_path = args[1]
 
     if action == "split":
-        split_file(file_path)
+        split_file(file_path, force=force)
     elif action == "concat":
         concat_files(file_path)
     else:
