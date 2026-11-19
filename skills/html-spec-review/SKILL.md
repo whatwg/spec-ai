@@ -21,7 +21,7 @@ Refer to this skill when authoring spec text, reviewing pull requests, or conduc
 
 `whatwg/html`'s `source` file is over 160,000 lines, so reading or editing it whole is slow and error-prone. Before examining or editing `source`, use `scripts/split_html.py` (bundled in this skill directory) to split `source` at each `<h2` tag into `split_source/` (`00_start.html`, then `<NN>_<id>.html` per section, e.g. `04_introduction.html`):
 
-1. **Split**: `python3 <skill-dir>/scripts/split_html.py split <path/to/html/source>` (adds `/split_source/` to `.git/info/exclude` so it can stay in place; re-run whenever `source` changes on disk, and before spawning read-only subagents since they can't run it themselves).
+1. **Split**: `python3 <skill-dir>/scripts/split_html.py split <path/to/html/source>` (adds `/split_source/` to `.git/info/exclude` so it can stay in place). Split at the start of each task, after any checkout, and before spawning read-only subagents, since they can't run it themselves. It's fast, and refuses to overwrite edits not yet concatenated unless given `--force`.
 2. **Read, Edit & Analyze**: Use standard file/search tools (`view_file`/`Read`, `replace_file_content`/`Edit`, `grep_search`/`Grep`) and the static analyzers in `scripts/` directly on `split_source/` or its section files (e.g., `11_webappapis.html`).
 3. **Concatenate (if edited)**: `python3 <skill-dir>/scripts/split_html.py concat <path/to/html/source>` before building, diffing, or committing.
 
