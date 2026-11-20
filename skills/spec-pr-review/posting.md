@@ -53,10 +53,12 @@ user owns the comment:
   new items that need people's attention, post a new comment.
 
 Content: a short status update, then what needs input. If a fix isn't on the spec or wpt PR
-branches yet, or a question is open, the first line says which, e.g. "Not applied yet: D1 and
-D2. Open: Q1." Put items first raised in this review at the top; items already raised on the
-thread go after them in a `<details>`, for book-keeping, each linking the comments that raised
-it. When there are both, start the new ones with "New in this review:". For each item:
+branches yet, or a question is open, the first line says which, naming each ID's kind, e.g.
+"Proposed fixes for defects D1 and D2 aren't applied yet. Option b for question Q1 isn't
+applied yet. Question Q2 is open." Put items first raised in this review at the top; items
+already raised on the thread go after them in a `<details>`, for book-keeping, each linking the
+comments that raised it. When there are both, start the new ones with "New in this review:".
+For each item:
 
 - the ID with a colon, not bold (e.g. "Q1: …"), and the problem with a short concrete case;
   for an item someone else raised, link their comments and name them without `@`;
