@@ -69,8 +69,12 @@ design first, editorial once the design is settled.
 
 Overrides: "design only" or "spec design review" (no editorial phase); "editorial only" or "spec
 editorial review" (skip the design steps and say which items are still open); "editorial first"
-(editorial phase, then the flow); "redesign" (a design review with [`design.md`](design.md)
-§7). Mode words ("interactive", "fix defects", "fix all") are in [`decisions.md`](decisions.md).
+(editorial phase, then the flow); "redesign" (a design review with [`design.md`](design.md) §7);
+"from scratch" (review the whole change, ignoring coverage from before this run: every source in
+[`state.md`](state.md) §Last design review, `Editorial done at <sha>`, and confirmations that a
+commit applies a decision; decisions stay settled, new items get IDs after the highest one used
+([`state.md`](state.md) §Ledger), and the review checks those commits). Mode words
+("interactive", "fix defects", "fix all") are in [`decisions.md`](decisions.md).
 
 ## Improving the skill
 

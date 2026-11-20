@@ -7,6 +7,9 @@
   `git clone --shared <checkout> <temp dir>`, not `git worktree`: html-build's `build.sh` needs
   `.git` to be a directory. Fetch commits back with `git fetch <temp dir> <branch>:<branch>`,
   and delete the clone when done.
+- For HTML, run `html-spec-review`'s `split_html.py split` in each checkout or clone you or an
+  agent will read, after checking out the state to read, and `concat` before building, diffing,
+  or committing.
 
 ## Names
 

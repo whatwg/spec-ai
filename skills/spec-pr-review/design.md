@@ -29,12 +29,15 @@ against this list. In a scoped run, cover only the scope.
 Use fresh agents, told to be adversarial. Give each the diffs, the commit messages, the delta
 list, the ledger (decided items marked as settled), the unverified concerns its lens covers,
 and one lens, but not your own findings. Tell them to report only behavior, normative, and
-test-correctness issues, each with a concrete case (input and wrong outcome), and to drop
-editorial ones. For HTML, also give each the `[design]` rules of `html-spec-review` that fit
-its lens. Point them at a clean clone at the PR heads, not your working clones, and start your
-own prototypes only after §4, so they can't see your work. One reviewer can take several lenses
-when the change is small or stays in one area; otherwise use one per lens. Skip lenses that
-don't apply. You run the tests and give the results to the Tests reviewer.
+test-correctness issues, each with a concrete case (input and wrong outcome): those the change
+introduces or exposes, and pre-existing bugs in algorithms it touches, marked pre-existing.
+They drop editorial ones and pre-existing bugs in algorithms the change doesn't touch.
+For HTML, split `source` in the clone they read (`split_html.py`) and give each the `[design]`
+rules of `html-spec-review` that fit its lens. Point them at a clean clone ([`git.md`](git.md)
+§Checkouts) at the PR heads, not your working clones, and start your own prototypes only after
+§4, so they can't see your work. One reviewer can take several lenses when the change is small
+or stays in one area; otherwise use one per lens. Skip lenses that don't apply. You run the
+tests and give the results to the Tests reviewer.
 
 - **Design and intent**: does it solve the issue; alternatives; consistency with the rest of the
   platform; compat and implementer status; security and privacy, including content in the

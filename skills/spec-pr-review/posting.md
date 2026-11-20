@@ -24,9 +24,9 @@
 - **Proposal and prototype branches**: only to the user's fork, never to the spec's or wpt's own
   repo, even if the user can push there; only when a comment links their commits. When
   offering a comment with fixes or options not applied, ask whether to push their branches and
-  link their commits or post without them. A draft can link them before they're pushed; push
-  them after the yes, before posting. If there's no fork, offer to create one (`gh repo fork
-  --remote=false`).
+  link their commits or post without them. A draft can link them before they're pushed if you
+  say next to it that they aren't pushed yet; push them after the yes, before posting. If
+  there's no fork, offer to create one (`gh repo fork --remote=false`).
 - Never push notes refs.
 
 Right before pushing, confirm each target branch is still at the commit you built on, then
