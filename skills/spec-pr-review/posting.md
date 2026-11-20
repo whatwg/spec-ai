@@ -12,6 +12,21 @@
 - Ask in one line where you can, e.g. "Push 3 commits (abc1234..def5678) to `foo` on
   `whatwg/html` (#123)?"
 
+## Blocked writes
+
+If an approved write is blocked by the user's setup (the agent's permission rules deny it, or
+it fails with a permission or access error from the token, the remote, or a sandbox), don't
+retry it or work around it. Other failures go by §Pushing. Give the user the commands for it
+and the rest of what was approved, to run themselves, with how to run them in this session if
+the agent supports that (under Claude Code, `! <command>`). Do the same when the user asks to
+run them. A "no" to your question isn't a block: offer nothing.
+
+- Write comment text to a file and pass its path (`gh pr comment <N> --body-file <path>`;
+  `gh api -X PATCH … -F body=@<path>`), never inline.
+- Give the push commands first, with the same rules as your own pushes, and the comment
+  commands only once the user says they ran them and each target branch is at the commit you
+  expect (`git ls-remote`); if one isn't, say which. After they post, go on as if you had.
+
 ## Pushing
 
 - **The user's own PR**: the working branch to its PR branch.
