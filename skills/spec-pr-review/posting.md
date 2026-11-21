@@ -39,9 +39,9 @@ Comments go on spec PRs only, never on wpt PRs, as a regular PR comment, not a r
 user owns the comment:
 
 - Draft it, show it, and let the user edit it or add to it. Post their final text unchanged.
-- Before pushing anything that carries new IDs, refetch the thread. If IDs were posted since
-  you numbered your new items, renumber them after the highest, with their branches and the
-  trailers of your unpushed commits, and ask again with the change shown.
+- Right before pushing or posting anything that carries new IDs, refetch the thread. If IDs
+  were posted since you numbered your new items, renumber them after the highest, with their
+  branches and the trailers of your unpushed commits, and ask again with the change shown.
 - Push what the comment refers to first: call a commit a fix only once it's on the PR branch.
 - After posting, refetch once. If an earlier comment took the same new IDs for other items,
   offer to edit yours to renumber, saying which pushed commits carry the old ID (posted IDs
@@ -89,12 +89,14 @@ Also:
   several commits the compare view `https://github.com/<fork>/compare/<base sha>...<head sha>`.
 - Without branches, don't mention branches, prototypes, forks, or commits not on a PR branch;
   give what prototyping revealed as tradeoffs.
+- Leave a blank line after every `<summary>…</summary>`, or GitHub doesn't render Markdown or
+  autolink inside the `<details>`.
 - Include test results only as evidence for an item, such as a browser behaving differently.
 - No behavior delta list, summary of the change, editorial findings, cleanup, local paths, or
   praise. Address the people on the PR and ask; don't instruct the author.
 - End with the "Reviewed at" line, collapsed (one `web-platform-tests/wpt#<N> at <sha>` per open
   wpt PR; for tests already merged, `web-platform-tests/wpt@<sha>` at the commit you ran; none
-  if there are no tests). Keep the blank line, or GitHub doesn't autolink inside:
+  if there are no tests), with its blank line:
 
   ```
   <details><summary>Reviewed commits</summary>
