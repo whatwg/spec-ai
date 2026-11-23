@@ -6,7 +6,7 @@ The user's words pick the mode. The default is *ask*. If the user's words don't 
 a mode (e.g. "apply all"), list what each mode would do here and ask.
 
 - *ask*: end the briefing with one line per item needing a decision, e.g. `D1: apply, decline,
-  or leave open` and `Q2: a, b, keep as is, or leave open`. The user answers in one reply, in
+  or leave open` and `Q2: a, b, c, or leave open`. The user answers in one reply, in
   any form; items they don't mention stay as they are.
 - *interactive*: ask about one item at a time, with the same choices.
 - *fix defects*: apply every proposed defect fix, and ask about questions as in *ask*.

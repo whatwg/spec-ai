@@ -70,8 +70,9 @@ For each item:
   - `Applied in <sha>, would like confirmation from <people>`;
   - "Kept as is", "Declined", or "Dropped", with the reason in one sentence; `Deferred to
     #<N>`; `Moved to #<N> Q<M>`;
-  - for a question: the question and one line per option, with tradeoffs and prototype links,
-    then the evidence in one `<details>` after the options.
+  - for a question: the question and one bullet per option, led by its letter (`- a. Keep as
+    is: …`), with tradeoffs and prototype links, then the evidence in one `<details>` after the
+    options.
 
 Also:
 

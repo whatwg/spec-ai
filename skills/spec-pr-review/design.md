@@ -85,7 +85,8 @@ Then:
   proposal branch ([`git.md`](git.md) §Names), so each can be applied on its own.
 - **Design question** (`Q<N>`): more than one reasonable behavior, or unclear intent. A fix that
   would change behavior engines agree on is a design question too.
-  - Write 2–3 options, including "keep as is" if it's viable.
+  - Write 2–3 options, lettered a, b, c, including "keep as is" if it's viable. Use the
+    letters everywhere: briefing, branches, decision prompt, and comment.
   - Prototype each option as commits, spec and tests, on its own branch; implementing an
     option is how you find what's wrong with it. Check each prototype against the delta list,
     the call sites, and the tests in browsers. If an option needs substantial new spec text
