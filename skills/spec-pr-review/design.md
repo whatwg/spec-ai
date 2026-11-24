@@ -27,8 +27,9 @@ against this list. In a scoped run, cover only the scope.
 ## 3. Parallel reviewers
 
 Use fresh agents, told to be adversarial. Give each the diffs, the commit messages, the delta
-list, the ledger (decided items marked as settled), the unverified concerns its lens covers,
-and one lens, but not your own findings. Tell them to report only behavior, normative, and
+list, the ledger (decided items and settled thread decisions marked as settled), the unverified
+concerns its lens covers, and one lens, but not your own findings. Tell them to report only
+behavior, normative, and
 test-correctness issues, each with a concrete case (input and wrong outcome): those the change
 introduces or exposes, and pre-existing bugs in algorithms it touches, marked pre-existing.
 They drop editorial ones and pre-existing bugs in algorithms the change doesn't touch.
@@ -84,7 +85,9 @@ Then:
   one behavior fits it. Write the fix, with its tests, as one commit per repo on its own
   proposal branch ([`git.md`](git.md) §Names), so each can be applied on its own.
 - **Design question** (`Q<N>`): more than one reasonable behavior, or unclear intent. A fix that
-  would change behavior engines agree on is a design question too.
+  would change behavior engines agree on is a design question too. Reopening a settled decision
+  with new evidence ([`state.md`](state.md) §Ledger) is always a design question citing that
+  decision, never a defect.
   - Write 2–3 options, lettered a, b, c, including "keep as is" if it's viable. Use the
     letters everywhere: briefing, branches, decision prompt, and comment.
   - Prototype each option as commits, spec and tests, on its own branch; implementing an
