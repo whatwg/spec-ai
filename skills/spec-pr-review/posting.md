@@ -82,9 +82,9 @@ Also:
   `[option b](<URL>)`. Commit URLs, which GitHub shortens, stay bare, except for fixes and
   options.
 - Write every SHA in full (40 characters), the "Reviewed at" line included: GitHub shows
-  autolinked SHAs short, and a short SHA can be ambiguous on GitHub and not link. Link
-  same-repo commits by bare SHA and other repos' commits by full URL, but give the "Reviewed at"
-  line's SHAs no Markdown links.
+  autolinked SHAs short, and a short SHA can be ambiguous on GitHub. Link same-repo commits by
+  bare SHA and other repos' commits by full URL, but give the "Reviewed at" line's SHAs no
+  Markdown links.
 - Link a fix or option that isn't applied by its commit on the fork, once pushed, never by its
   branch, which moves: one link per repo (e.g. `option b: [spec](<URL>), [test](<URL>)`), and for
   several commits the compare view `https://github.com/<fork>/compare/<base sha>...<head sha>`.
