@@ -81,9 +81,10 @@ Also:
 - Give links short Markdown text instead of a bare URL, e.g. `[proposed fix](<URL>)` or
   `[option b](<URL>)`. Commit URLs, which GitHub shortens, stay bare, except for fixes and
   options.
-- Use short SHAs (7 characters) everywhere, the "Reviewed at" line included. Link same-repo
-  commits by short SHA and other repos' commits by full URL, but leave the "Reviewed at" line's
-  SHAs unlinked.
+- Write every SHA in full (40 characters), the "Reviewed at" line included: GitHub shows
+  autolinked SHAs short, and a short SHA can be ambiguous on GitHub and not link. Link
+  same-repo commits by bare SHA and other repos' commits by full URL, but give the "Reviewed at"
+  line's SHAs no Markdown links.
 - Link a fix or option that isn't applied by its commit on the fork, once pushed, never by its
   branch, which moves: one link per repo (e.g. `option b: [spec](<URL>), [test](<URL>)`), and for
   several commits the compare view `https://github.com/<fork>/compare/<base sha>...<head sha>`.
@@ -101,7 +102,7 @@ Also:
   ```
   <details><summary>Reviewed commits</summary>
 
-  Reviewed at <spec short sha> on <base short sha>, with web-platform-tests/wpt#<N> at <short sha>, using spec-pr-review.
+  Reviewed at <spec sha> on <base sha>, with web-platform-tests/wpt#<N> at <wpt sha>, using spec-pr-review.
   </details>
   ```
 
