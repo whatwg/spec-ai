@@ -95,14 +95,15 @@ Also:
 - Include test results only as evidence for an item, such as a browser behaving differently.
 - No behavior delta list, summary of the change, editorial findings, cleanup, local paths, or
   praise. Address the people on the PR and ask; don't instruct the author.
-- End with the "Reviewed at" line, collapsed (one `web-platform-tests/wpt#<N> at <sha>` per open
-  wpt PR; for tests already merged, `web-platform-tests/wpt@<sha>` at the commit you ran; none
-  if there are no tests), with its blank line:
+- End with the "Reviewed at" line, collapsed (one `web-platform-tests/wpt#<N> at
+  web-platform-tests/wpt@<head sha> on web-platform-tests/wpt@<base sha>` per open wpt PR, so
+  the commits autolink; for tests already merged, `web-platform-tests/wpt@<sha>` at the commit
+  you ran; none if there are no tests), with its blank line:
 
   ```
   <details><summary>Reviewed commits</summary>
 
-  Reviewed at <spec sha> on <base sha>, with web-platform-tests/wpt#<N> at <wpt sha>, using spec-pr-review.
+  Reviewed at <spec sha> on <base sha>, with web-platform-tests/wpt#<N> at web-platform-tests/wpt@<head sha> on web-platform-tests/wpt@<base sha>, using spec-pr-review.
   </details>
   ```
 

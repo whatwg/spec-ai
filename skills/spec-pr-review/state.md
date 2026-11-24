@@ -158,7 +158,7 @@ decision.
   editorial pass, and say so: `git notes --ref=spec-pr-review add -f -F <file> <reviewed spec
   head>`, keeping other keys' sections if that commit already has a note. Each section starts
   with its key (the PR, as `<repo>#<N>`, or the local branch name), then `Reviewed at <head> on
-  <base>`, the wpt heads, and one line per item with its state and record.
+  <base>`, the wpt heads and their bases, and one line per item with its state and record.
 - Read it: `git notes --ref=spec-pr-review list`, and take the note with the key on the most
   recent commit; for a new PR with no note yet, the key of the branch it was opened from.
   Decisions in it are settled for the user's own runs, but unrecorded for the PR until they're
