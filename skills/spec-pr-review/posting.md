@@ -77,13 +77,14 @@ Also:
 
 - Backticks in this file only mark templates. In the comment, backtick code: element and
   attribute names (a bare `<a>` renders as HTML and vanishes), IDL, values, and file names. Write
-  SHAs, `#<N>`, and `owner/repo#<N>` without backticks, or they don't autolink.
+  SHAs, `#<N>`, and `owner/repo#<N>` without backticks, or they don't autolink (backticks are
+  fine as a link's text).
 - Give links short Markdown text instead of a bare URL, e.g. `[proposed fix](<URL>)` or
   `[option b](<URL>)`. Commit URLs, which GitHub shortens, stay bare, except for fixes and
   options.
-- Write every SHA in full (40 characters), the "Reviewed at" line included: GitHub shows
-  autolinked SHAs short, and a short SHA can be ambiguous on GitHub. Link same-repo commits by
-  bare SHA and other repos' commits by full URL, except in the "Reviewed at" line below.
+- Write every SHA in full (40 characters): GitHub shows autolinked SHAs short, and a short SHA
+  can be ambiguous on GitHub. Link same-repo commits by bare SHA and other repos' commits by
+  full URL. The exception is the "Reviewed at" line below, whose wpt links show 7 characters.
 - Link a fix or option that isn't applied by its commit on the fork, once pushed, never by its
   branch, which moves: one link per repo (e.g. `option b: [spec](<URL>), [test](<URL>)`), and for
   several commits the compare view `https://github.com/<fork>/compare/<base sha>...<head sha>`.
@@ -94,18 +95,22 @@ Also:
 - Include test results only as evidence for an item, such as a browser behaving differently.
 - No behavior delta list, summary of the change, editorial findings, cleanup, local paths, or
   praise. Address the people on the PR and ask; don't instruct the author.
-- End with the "Reviewed at" line, collapsed. Spec SHAs are bare and full. Give each wpt
-  commit as a Markdown link, ``[`<short sha>`](https://github.com/web-platform-tests/wpt/commit/<sha>)``
-  (`<wpt head>` and `<wpt base>` below), with the 7-character SHA as text and the full one in
-  the URL. Add one `web-platform-tests/wpt#<N> at <wpt head> on <wpt base>` per open wpt PR;
-  for tests already merged, `web-platform-tests/wpt at <wpt commit>` for the commit you ran;
-  none if there are no tests. Keep its blank line:
+- End with the "Reviewed at" line, collapsed, as in the template below: spec SHAs bare and
+  full, wpt commits linked with their 7-character SHA as text. One `web-platform-tests/wpt#<N>
+  at … on …` per open wpt PR, with its head and base; none if there are no tests. Keep its
+  blank line:
 
   ```
   <details><summary>Reviewed commits</summary>
 
-  Reviewed at <spec sha> on <base sha>, with web-platform-tests/wpt#<N> at <wpt head> on <wpt base>, using spec-pr-review.
+  Reviewed at <spec sha> on <base sha>, with web-platform-tests/wpt#<N> at [`<wpt head, 7 chars>`](https://github.com/web-platform-tests/wpt/commit/<wpt head sha>) on [`<wpt base, 7 chars>`](https://github.com/web-platform-tests/wpt/commit/<wpt base sha>), using spec-pr-review.
   </details>
+  ```
+
+  For tests already merged, the wpt part is instead the commit you ran:
+
+  ```
+  with web-platform-tests/wpt at [`<7 chars>`](https://github.com/web-platform-tests/wpt/commit/<sha>)
   ```
 
   Later runs rely on this line; if the user's edit removes it, say so.
