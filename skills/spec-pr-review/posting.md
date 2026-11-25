@@ -83,8 +83,7 @@ Also:
   options.
 - Write every SHA in full (40 characters), the "Reviewed at" line included: GitHub shows
   autolinked SHAs short, and a short SHA can be ambiguous on GitHub. Link same-repo commits by
-  bare SHA and other repos' commits by full URL, but give the "Reviewed at" line's SHAs no
-  Markdown links.
+  bare SHA and other repos' commits by full URL, except in the "Reviewed at" line below.
 - Link a fix or option that isn't applied by its commit on the fork, once pushed, never by its
   branch, which moves: one link per repo (e.g. `option b: [spec](<URL>), [test](<URL>)`), and for
   several commits the compare view `https://github.com/<fork>/compare/<base sha>...<head sha>`.
@@ -95,15 +94,17 @@ Also:
 - Include test results only as evidence for an item, such as a browser behaving differently.
 - No behavior delta list, summary of the change, editorial findings, cleanup, local paths, or
   praise. Address the people on the PR and ask; don't instruct the author.
-- End with the "Reviewed at" line, collapsed (one `web-platform-tests/wpt#<N> at
-  web-platform-tests/wpt@<head sha> on web-platform-tests/wpt@<base sha>` per open wpt PR, so
-  the commits autolink; for tests already merged, `web-platform-tests/wpt@<sha>` at the commit
-  you ran; none if there are no tests), with its blank line:
+- End with the "Reviewed at" line, collapsed. Spec SHAs are bare and full. Give each wpt
+  commit as a Markdown link, ``[`<short sha>`](https://github.com/web-platform-tests/wpt/commit/<sha>)``
+  (`<wpt head>` and `<wpt base>` below), with the 7-character SHA as text and the full one in
+  the URL. Add one `web-platform-tests/wpt#<N> at <wpt head> on <wpt base>` per open wpt PR;
+  for tests already merged, `web-platform-tests/wpt at <wpt commit>` for the commit you ran;
+  none if there are no tests. Keep its blank line:
 
   ```
   <details><summary>Reviewed commits</summary>
 
-  Reviewed at <spec sha> on <base sha>, with web-platform-tests/wpt#<N> at web-platform-tests/wpt@<head sha> on web-platform-tests/wpt@<base sha>, using spec-pr-review.
+  Reviewed at <spec sha> on <base sha>, with web-platform-tests/wpt#<N> at <wpt head> on <wpt base>, using spec-pr-review.
   </details>
   ```
 
