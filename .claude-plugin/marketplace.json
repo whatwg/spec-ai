@@ -1,0 +1,14 @@
+{
+  "name": "spec-ai",
+  "owner": {
+    "name": "WHATWG"
+  },
+  "description": "Skills for writing and reviewing WHATWG standards",
+  "plugins": [
+    {
+      "name": "spec-ai",
+      "source": "./",
+      "description": "Skills for writing and reviewing WHATWG standards"
+    }
+  ]
+}
