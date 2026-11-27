@@ -1,0 +1,10 @@
+{
+  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+  "name": "spec-ai",
+  "description": "Skills for writing and reviewing WHATWG standards",
+  "license": "CC-BY-4.0",
+  "author": {
+    "name": "WHATWG"
+  },
+  "repository": "https://github.com/whatwg/spec-ai"
+}

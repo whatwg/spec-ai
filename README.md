@@ -31,13 +31,15 @@ Both skills jot notes in `~/.local/state/skill-improvement/spec-ai.md` when thei
 
 ## Usage
 
-Link or install the skills directory into your AI coding agent:
+Install the skills in your AI coding agent:
 
-- **Claude Code**:
-  ```bash
-  ln -s /path/to/spec-ai/skills/html-spec-review ~/.claude/skills/html-spec-review
-  ln -s /path/to/spec-ai/skills/spec-pr-review ~/.claude/skills/spec-pr-review
+- **Claude Code**: install the `spec-ai` plugin from this repo's marketplace:
   ```
+  /plugin install spec-ai --marketplace whatwg/spec-ai
+  ```
+  On Claude Code before 2.1.275, run `/plugin marketplace add whatwg/spec-ai`, then `/plugin install spec-ai@spec-ai`. The skills are then `spec-ai:html-spec-review` and `spec-ai:spec-pr-review`. Every new commit on `main` is an update: turn on auto-update for the `spec-ai` marketplace in `/plugin`, or run `/plugin update spec-ai@spec-ai`.
+
+  To work on the skills, start Claude Code with `claude --plugin-dir /path/to/spec-ai` (an absolute path to your checkout). For that session, the checkout replaces the installed plugin, and `/reload-plugins` picks up edits.
 - **Gemini CLI / Antigravity**:
   ```bash
   ln -s /path/to/spec-ai/skills/html-spec-review ~/.gemini/skills/html-spec-review
