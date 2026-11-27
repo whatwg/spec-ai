@@ -63,9 +63,11 @@ same with or without a PR.
   as recorded.
 - The briefing names who decided each item. A decider can reopen any decision, as a new
   question.
-- A decision is a decider's unambiguous choice of one outcome for an identified item. An
-  ambiguous reply, a reply to an ID that collides, or deciders who disagree leave the item open;
-  list each decider's position and never break the tie.
+- A decision is a decider's unambiguous choice of one outcome for an identified item or for a
+  point discussed in the PR thread or linked issues (for example, rejecting a suggestion or
+  agreeing to leave something out of scope). An ambiguous reply, a reply to an ID that collides,
+  or deciders who disagree leave the item open; list each decider's position and never break the
+  tie.
 
 ## Ledger
 
@@ -88,18 +90,20 @@ the namespace is the local branch; it carries over when the PR is opened.
   - *deferred* (the follow-up issue), *moved* (the new owner and ID), or *dropped* (didn't
     reproduce, or isn't this change's; with the reason).
 - Recorded decisions are settled: give them to every reviewer as such. Revisit one only with
-  new evidence, as a new question that cites it. An unrecorded decision may be questioned for a
-  substantive problem; say it may already have been decided.
+  new evidence, as a new question that cites it. An unrecorded decision may be questioned the
+  same way for a substantive problem; say it may already have been decided.
 
 ## Human concerns
 
 Read every review thread (resolved or not, outdated or not), review body, line comment, and
 top-level comment. For each normative or test concern that isn't already an item:
 
-- if the current head addresses it (a change, or a reply by the author or a decider), note
-  `addressed in <sha>` or the reply's link; what the reply leaves out stays unverified. It's not
-  an item, and an unresolved thread for it doesn't keep the design phase going;
-- if a decider settled it, record the decision;
+- if a decider chose an outcome (e.g. dropping a suggestion, leaving something out of scope,
+  or keeping an approach), record the decision, with its thread link; §Deciders says whether
+  it's recorded;
+- if the current head otherwise addresses it (a change, or a reply by the author or a decider),
+  note `addressed in <sha>` or the reply's link; what the reply leaves out stays unverified. It's
+  not an item, and an unresolved thread for it doesn't keep the design phase going;
 - otherwise it's an unverified concern for the design phase, and gets an ID if it holds.
 
 Editorial concerns go to the editorial phase's scope.
