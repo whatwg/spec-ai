@@ -100,7 +100,7 @@ Then:
 Report in chat. This is for the user; a posted comment is much shorter
 ([`posting.md`](posting.md)).
 
-- The scope, and `Reviewed at <spec sha> on <base sha>, wpt <sha>`.
+- The scope, and `Reviewed at <spec sha> on <base sha>, wpt <sha> on <wpt base sha>`.
 - The behavior delta list, briefly.
 - Each new or still-open item: its ID, who raised it, the problem with its concrete case, and
   the proposed commit, or the options with tradeoffs, prototype branches, and what prototyping
